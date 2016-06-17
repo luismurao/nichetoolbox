@@ -1,0 +1,146 @@
+source("server_funcs/data_gbif.R",local = TRUE)
+source("server_funcs/data_user.R",local=TRUE)
+# Reactive to extract values of niche layers
+
+define_M_raster <- reactive({
+
+  if(!is.null(myPolygon()) && !is.null(rasterLayers())){
+    M_raster <- crop(rasterLayers(),myPolygon())
+    M_raster <- mask(M_raster,myPolygon())
+    return(M_raster)
+  }
+  else
+    return(NULL)
+
+})
+
+# Select a dataset
+
+data_to_extract <- reactive({
+  if(input$datasetM == "gbif_dat" && !is.null(data_gbif()))
+    return(data_gbif()[,c(input$xLongitudeGBIF,input$yLatitudeGBIF)])
+  if(input$datasetM == "updata" && !is.null(data_user_clean()))
+    return(data_user_clean()[,c(input$xLongitudeUser,input$yLatitudeUser)])
+  else
+    return(NULL)
+})
+
+occ_extract_from_mask <- reactive({
+  input$run_extract
+  isolate({
+    if(input$run_extract){
+      if(!is.null(define_M_raster()) && !is.null(data_to_extract())){
+        data <- data.frame(extract(define_M_raster(),
+                                   data_to_extract()))
+        data <- na.omit(data)
+        return(data)
+      }
+      else
+        return(NULL)
+    }
+  })
+
+})
+
+occ_extract <- reactive({
+  input$run_extract
+  isolate({
+    if(input$run_extract){
+      if(!is.null(data_to_extract()) && !is.null(rasterLayers())){
+        data <- data.frame(extract(rasterLayers(),
+                                   data_to_extract()))
+        data <- na.omit(data)
+        return(data)
+      }
+      else
+        return(NULL)
+    }
+  })
+
+})
+
+data_extraction <- reactive({
+  if(input$extracted_area == "all_area")
+    return(occ_extract())
+  if(input$extracted_area == "polygon_of_M")
+    return(occ_extract_from_mask())
+})
+
+
+
+output$dataM <- renderDataTable({
+  data_extraction()
+},
+options = list(aLengthMenu = c(5, 10, 25,
+                               50, 100, 500),
+               iDisplayLength = 5))
+
+output$raster_sample <- renderPlot({
+
+  if(!is.null(rasterLayers())){
+    if(input$extracted_area == "all_area" && !is.null(data_to_extract())){
+      plot(rasterLayers()[[1]])
+    }
+
+    if(input$extracted_area == "polygon_of_M" && !is.null(data_to_extract()) && !is.null(define_M_raster())){
+      plot(define_M_raster()[[1]])
+    }
+    if(input$extracted_area == "polygon_of_M" && !is.null(data_to_extract()) && is.null(define_M_raster())){
+      messages <- "Define M area using dynamic Map"
+      x <- -10:10
+      y <- x
+      plot(x,y,type="n", xlab="No Data", ylab="No data")
+      text(0,0,messages,cex=3 )
+    }
+
+  }
+  else{
+    messages <- "Load niche layers in App settings section"
+    x <- -10:10
+    y <- x
+    plot(x,y,type="n", xlab="No Data", ylab="No data")
+    text(0,0,messages,cex=3 )
+  }
+
+})
+
+# Download data table with niche vars values
+
+output$downloadExtraction <- downloadHandler(
+  filename = function() return(paste0(input$genus,"_",input$species,"niche_data.csv")),
+  content = function(file) {
+    if(!is.null(data_extraction())){
+      ## Leyendo los datos de la especie e escriendolos en un .csv
+      write.csv(data_extraction(),file,row.names = FALSE)
+    }
+  }
+)
+
+
+# Download clipped rasters
+
+tar_clippedRas <- reactive({
+  if(!is.null(define_M_raster())){
+    tempfilePath <- tempfile(pattern = "clippedRaster")
+    temdirRas <- dir.create(tempfilePath)
+    raslayers <- define_M_raster()
+    layernames <- names(raslayers)
+    filenames <- paste0(tempfilePath,"/",layernames,".asc")
+    sapply(1:length(filenames), function(x) writeRaster(raslayers[[x]],filename = filenames[x],overwrite=TRUE))
+    tarRas <- paste0(tempfilePath,"/clippedRaster.tar")
+    utils::tar(tarRas,tempfilePath,compression='gzip')
+    return(tarRas)
+  }
+  else
+    return(NULL)
+})
+
+output$downClippedR <- downloadHandler(
+  filename = function() return(paste0(input$genus,"_",input$species,"M_rasters.tar")),
+  content = function(file) {
+    if(!is.null(tar_clippedRas())){
+      ## Leyendo los datos de la especie e escriendolos en un .csv
+      file.copy(tar_clippedRas(), file)
+    }
+  }
+)

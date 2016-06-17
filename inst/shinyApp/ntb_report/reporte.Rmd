@@ -1,0 +1,149 @@
+---
+title: "NicheToolBox Report"
+---
+
+This is **NicheToolBox workflow Report** here you can find a quick view of the thinks that you have done in the software. Remember that this is free software so it comes with no waranty, please report any bugs you find at <luismurao@comunidad.unam.mx>
+
+
+```{r results="asis",echo=FALSE}
+library(knitr)
+occ_data <- data_gbif()
+if(!is.null(occ_data)){
+  cat("## GBIF data")
+  cat("\n")
+  cat(paste0("The total number of occurrences points were: **", dim(data_gbif())[1],"**"))
+  cat("\n")
+
+  printInfo <- 1
+  
+} else{
+  printInfo <- 0
+}
+
+```
+
+
+
+```{r kable,echo=printInfo,eval=printInfo}
+occ_data <- data_gbif()
+kable(head(occ_data[,c(input$xLongitudeGBIF,
+                       input$yLatitudeGBIF,
+                       "country","countryCode")]),digits=4)
+```
+
+### GBIF visualizations
+
+#### Interactive history of records
+
+```{r}
+library(googleVis)
+op <- options(gvis.plot.tag="chart")
+```
+
+#### Pie chart of occs by country (all years)
+
+
+```{r results='asis', tidy=TRUE}
+
+occ_data <- data_gbif()
+if(!is.null(occ_data)){
+  plot(GBIF_vis()$pie)
+}
+```
+
+#### Pie chart of occs by country (year `r input$GBIFYears`)
+
+```{r results='asis', tidy=TRUE}
+
+occ_data <- data_gbif()
+if(!is.null(occ_data)){
+  plot(calendar())
+}
+```
+
+
+#### Motion chart of records reported by year 
+
+```{r results='asis', tidy=TRUE}
+
+occ_data <- data_gbif()
+if(!is.null(occ_data)){
+  plot(GBIF_vis()$motion)
+}
+```
+
+#### GBIF animated history of records
+
+```{r,echo=FALSE}
+wf_dir_path <- paste0(workflowDir(),"worflowReport")
+anima_save <- paste0(wf_dir_path,"/",input$genus,"_",
+                          input$species,"_animation.gif")
+```
+
+```{r results="asis",echo=FALSE}
+if(file.exists(anima_save)){
+  cat(paste0("![](",anima_save,")"))
+}
+ 
+```
+
+
+  
+
+## User data
+
+```{r}
+library(knitr)
+occ_data <- data_user_clean()
+if(!is.null(occ_data)){
+  kable(head(occ_data[,c(input$xLongitudeUser,
+                         input$yLatitudeUser)]),digits=4)
+} else{
+  cat("No data")
+}
+```
+
+## Dynamic Map
+
+The followig is the map of ***`r input$dataset_dynMap`*** occurrence points
+
+```{r}
+if(!is.null(leafMapDynamic())){
+  leafMapDynamic() %>%  addTiles(
+      urlTemplate = "http://{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
+      attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+    )
+}
+
+```
+
+## Niche values 
+
+#### Raster layeres 
+
+```{r}
+if(!is.null(rasterLayers()))
+  print(rasterLayers())
+```
+
+#### Niche values of `r ifelse(input$extracted_area== "all_area",print("All raster area"),print("M polygon area"))`(`r ifelse(input$datasetM== "gbif_dat",print("GBIF data"), print("User data"))`)
+
+
+```{r,eval=T,echo=FALSE,results='asis'}
+if(!is.null(data_extraction())){
+  cont <- 1 
+  nvars <- dim(data_extraction())[2] 
+  for(i in 1:nvars){
+    if(i%%7==0){
+      print(kable(summary(data_extraction()[,cont:i])))
+      cont <- i + 1 
+    }
+  }
+  lprint <- data_extraction()[,cont:nvars]
+  names(lprint) <- names(data_extraction())[cont:nvars]
+  kable(summary(lprint))
+}
+   
+```
+
+
