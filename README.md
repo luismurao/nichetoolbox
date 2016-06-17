@@ -7,3 +7,9 @@
 if (!require('devtools')) install.packages('devtools')
 devtools::install_github('luismurao/nichetoolbox')
 ```
+## Usage 
+
+```r
+library(nichetoolbox)
+run_nichetoolbox()
+```
