@@ -128,7 +128,7 @@ kable(head(occ_data[,c(input$xLongitudeUser,
 
 ```{r results="asis",echo=FALSE}
 data_map <- dataDynamic()
-if(is.null(data_map)){
+if(!is.null(data_map)){
   cat("## Dynamic Map")
   cat("\n")
   cat(paste0("The followig is the map of ***",input$dataset_dynMap,"*** occurrence points"))
@@ -152,7 +152,7 @@ leafMapDynamic() %>%  addTiles(
 
 ```{r results="asis",echo=FALSE}
 niche_data <- data_extraction()
-if(is.null(niche_data)){
+if(!is.null(niche_data)){
   cat("## Niche values")
   cat("\n")
   cat("#### Raster layeres ")
