@@ -127,7 +127,7 @@ kable(head(occ_data[,c(input$xLongitudeUser,
 
 
 ```{r results="asis",echo=FALSE}
-data_map <- data_set()
+data_map <- dataDynamic()
 if(is.null(data_map)){
   cat("## Dynamic Map")
   cat("\n")
