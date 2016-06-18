@@ -142,13 +142,12 @@ if(is.null(data_map)){
 
 
 ```{r results='asis', echo=printInfoDynamicM,eval=printInfoDynamicM}
-if(!is.null(leafMapDynamic())){
-  print(input$dataset_dynMap)
-  leafMapDynamic() %>%  addTiles(
-      urlTemplate = "http://{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-      attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
-    )
-}
+print(input$dataset_dynMap)
+leafMapDynamic() %>%  addTiles(
+    urlTemplate = "http://{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
+    attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+)
+
 ```
 
 ```{r results="asis",echo=FALSE}
