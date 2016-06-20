@@ -73,10 +73,6 @@ plot(GBIF_vis()$motion)
 cat("#### GBIF animated history of records")
 ```
 
-```{r results='asis',echo=FALSE,eval=printInfoGBIF}
-cat(paste("#####",printInfoGBIF))
-```
-
 
 ```{r results="asis",echo=FALSE,eval=printInfoGBIF}
 anifile <- paste0(tempdir(),"/",temGBIF())
@@ -121,8 +117,6 @@ if(!is.null(data_map)){
   printInfoDynamicM <- FALSE
 }
 ```
-
-
 
 
 ```{r, echo=printInfoDynamicM,eval=printInfoDynamicM}
