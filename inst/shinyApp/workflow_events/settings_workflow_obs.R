@@ -134,12 +134,14 @@ observe({
 # Read polygons
 
 myPolygon <- reactive({
+  # Create polygon using leaflet maps
   if(!is.null(input$geojson_coords)){
     if(input$define_M == 1 && input$poly_from ==1){
       map <- readOGR(input$geojson_coords,"OGRGeoJSON")
       return(map)
     }
   }
+  # Read polygon from user file
   if(input$define_M == 1 && input$poly_from ==0 && !is.null(poly_dir()) &&  input$poly_files != "Select a layer"){
     map <- readOGR(dsn = poly_dir(),layer = input$poly_files)
     return(map)
@@ -183,7 +185,7 @@ observeEvent(input$saveState, {
 
     # Path to report source
 
-    report_path <- system.file("shinyApp/ntb_report/reporte.Rmd",
+    report_path <- system.file("shinyApp/ntb_report/data_report.Rmd",
                                 package = "nichetoolbox")
 
     mchart_path <- system.file("shinyApp/ntb_report/MotChartInstructions.Rmd",
@@ -191,7 +193,7 @@ observeEvent(input$saveState, {
 
     # save HTML path
 
-    report_save <- paste0(wf_dir_path,"/","reporte.html")
+    report_save <- paste0(wf_dir_path,"/","data_report.html")
     # save MotionChart display instructions
     mchart_save <- paste0(wf_dir_path,"/","DisplayMotionChartIns.html")
 

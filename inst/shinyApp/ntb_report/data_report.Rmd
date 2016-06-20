@@ -14,14 +14,13 @@ if(!is.null(occ_data)){
   cat(paste0("The total number of occurrences points were: **", dim(data_gbif())[1],"**"))
   cat("\n")
 
-  printInfoGBIF <- 1
+  printInfoGBIF <- TRUE
   
 } else{
-  printInfoGBIF <- 0
+  printInfoGBIF <- FALSE
 }
 
 ```
-
 
 
 ```{r kable,echo=printInfoGBIF,eval=printInfoGBIF}
@@ -38,19 +37,10 @@ op <- options(gvis.plot.tag="chart")
 
 
 ```{r results="asis",echo=FALSE, eval=printInfoGBIF}
-library(knitr)
-occ_data <- data_gbif()
-if(!is.null(occ_data)){
-  cat("### GBIF visualizations")
-  cat("\n")
-  cat("#### Pie chart of occs by country (all years)")
-  cat("\n")
-
-  printInfoGBIF <- 1
-  
-} else{
-  printInfoGBIF <- 0
-}
+cat("### GBIF visualizations")
+cat("\n")
+cat("#### Pie chart of occs by country (all years)")
+cat("\n")
 
 ```
 
@@ -60,11 +50,9 @@ plot(GBIF_vis()$pie)
 ```
 
 
-
 ```{r results="asis",echo=FALSE,eval= printInfoGBIF}
 cat(paste0("#### Pie chart of occs by country (year ",input$GBIFYears, ")"))
 ```
-
 
 
 ```{r results='asis',echo=printInfoGBIF,eval=printInfoGBIF}
@@ -85,15 +73,16 @@ plot(GBIF_vis()$motion)
 cat("#### GBIF animated history of records")
 ```
 
+```{r results='asis',echo=FALSE,eval=printInfoGBIF}
+cat(paste("#####",printInfoGBIF))
+```
+
 
 ```{r results="asis",echo=FALSE,eval=printInfoGBIF}
-wf_dir_path <- paste0(workflowDir(),"worflowReport")
+anifile <- paste0(tempdir(),"/",temGBIF())
 anima_save <- paste0(wf_dir_path,"/",input$genus,"_",
-                          input$species,"_animation.gif")
-if(file.exists(anima_save)){
-  cat(paste0("![](",anima_save,")"))
-}
- 
+                      input$species,"_animation.gif")
+if(file.exists(anima_save)) cat(paste0("![](",anima_save,")"))
 ```
 
 ```{r results="asis",echo=FALSE}
@@ -105,14 +94,13 @@ if(!is.null(occ_data)){
   cat(paste0("The total number of occurrences points were: **", dim(occ_data)[1],"**"))
   cat("\n")
 
-  printInfoUser <- 1
+  printInfoUser <- TRUE
   
 } else{
-  printInfoUser <- 0
+  printInfoUser <- FALSE
 }
 
 ```
-
 
 
 ```{r results='asis', echo=printInfoUser,eval=printInfoUser}
@@ -128,9 +116,9 @@ if(!is.null(data_map)){
   cat("## Dynamic Map")
   cat("\n")
   cat(paste0("The followig is the map of ***",input$dataset_dynMap,"*** occurrence points"))
-  printInfoDynamicM <- 1
+  printInfoDynamicM <- TRUE
 } else{
-  printInfoDynamicM <- 0
+  printInfoDynamicM <- FALSE
 }
 ```
 
@@ -151,19 +139,17 @@ if(!is.null(niche_data)){
   cat("## Niche values")
   cat("\n")
   cat("#### Raster layeres ")
-  printInfoNiche <- 1
+  printInfoNiche <- TRUE
 } else{
-  printInfoNiche <- 0
+  printInfoNiche <- FALSE
 }
 ```
-
-
-
 
 
 ```{r results='asis', echo=printInfoNiche,eval=printInfoNiche}
 print(rasterLayers())
 ```
+
 
 ```{r results='asis', echo=FALSE,eval=printInfoNiche}
 cat("#### Niche values of", ifelse(input$extracted_area== "all_area",print("All raster area"),print("M polygon area")))
@@ -193,5 +179,3 @@ if(!is.null(data_extraction())){
 }
    
 ```
-
-

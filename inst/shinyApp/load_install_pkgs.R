@@ -7,15 +7,16 @@ if(length(pkgs_miss)>0L){
   # Shinysky outside CRAN
   devtools::install_github("AnalytixWare/ShinySky")
 
-}
 
+}
+devtools::install_github("luismurao/leaflet")
 # NicheToolbox dependencies
 
-pkgs_ntb <- c('mgcv','ggplot2','ggmap','png','rmarkdown','knitr',
+pkgs_ntb <- c('mgcv','ggplot2','ggmap','png','rmarkdown','knitr',"leaflet",
               "spocc","googleVis",'rasterVis','stringr','grid','shinyFiles',
               'plyr','sp','raster','rgl','shiny',"rgdal","shinyBS","shinyjs",
               'rglwidget','plot3D','maps','car','mixtools','corrplot',
-              'pvclust','fpc','snow',"sqldf","leaflet",'shinysky',
+              'pvclust','fpc','snow',"sqldf",'shinysky',
               'maptools','ROCR','AUC','psych','vcd','shinythemes',
               'KernSmooth','dplyr','dygraphs','shinysky','nichetoolbox')
 
