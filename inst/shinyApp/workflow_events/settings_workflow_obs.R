@@ -179,6 +179,14 @@ observeEvent(input$saveState, {
     if(!dir.exists(wf_dir_path))
       dir.create(wf_dir_path)
 
+    # Animated map of GBIF records
+
+    anifile <- paste0(tempdir(),"/",temGBIF())
+    anima_save <- paste0(wf_dir_path,"/",input$genus,"_",
+                         input$species,"_animation.gif")
+
+    if(file.exists(anifile)) file.copy(anifile, anima_save)
+
     #------------------------------------------------------------
     # NicheToolBox report
     #------------------------------------------------------------
@@ -212,17 +220,6 @@ observeEvent(input$saveState, {
                                          highlight="haddock",
                                          toc = TRUE,theme = "readable"),
            output_file = mchart_save)
-
-
-    # Animated map of GBIF records
-
-    anifile <- paste0(tempdir(),"/",temGBIF())
-    anima_save <- paste0(wf_dir_path,"/",input$genus,"_",
-                          input$species,"_animation.gif")
-
-    if(file.exists(anifile)) file.copy(anifile, anima_save)
-
-
 
     # Save raw GBIF data (from GBIF data search)
     if(!is.null(data_gbif_search())){
