@@ -12,16 +12,18 @@ niche_data <- reactive({
 ## Enviromental niche space plot
 
 source("scatter3d/scatterplot.R")
+options(rgl.useNULL=TRUE)
+# Visualizations in niche space
 
-niche_plot <- function(data,x,y,z,gtype,ajus,ellip){
+niche_plot <- function(data,x,y,z,gtype,ajus,ellip,prop){
 
     if(gtype=="corre"){
       ifelse(!is.null(ajus),surf <- TRUE,no = surf <-FALSE)
       formula <- as.formula(paste0(y,"~",x,"+",z))
-      scatter3d(formula,point.col="gray8",level = 0.95,grid = TRUE,
+      scatter3d(formula,point.col="gray8",level = prop,grid = TRUE,
                 xlab = x,ylab = z,zlab = y,data=data,
                 surface = surf,ellipsoid = ellip,fit=ajus,
-                ellipsoid.alpha = 0.22,cex = 3,col="darkgreen")
+                ellipsoid.alpha = 0.2,cex = 3,col="darkgreen")
 
     }
     else if(gtype=="disp"){
@@ -43,9 +45,10 @@ output$nicho <- renderRglwidget({
     z <- input$z
     ajus <- input$fit
     ellip <- input$ellip
-
+    prop <- as.numeric(input$ellipsoid_vol)
     if(!is.null(niche_data())){
-      niche_plot(data = niche_data(),x = x,y = y,z = z,
+      open3d(windowRect=c(100,100,700,700))
+      niche_plot(data = niche_data(),x = x,y = y,z = z,prop =prop ,
                  gtype = gtype,ajus = ajus,ellip = ellip)
       rglwidget()
     }
@@ -55,6 +58,18 @@ output$nicho <- renderRglwidget({
 
 })
 
+
+# Download data table with niche vars values
+
+output$downloadLatLongNiche <- downloadHandler(
+  filename = function() return(paste0(input$genus,"_",input$species,"niche_lat_long_data.csv")),
+  content = function(file) {
+    if(!is.null(data_extraction())){
+      ## Leyendo los datos de la especie e escriendolos en un .csv
+      write.csv(cbind(data_to_extract() ,data_extraction()),file,row.names = FALSE)
+    }
+  }
+)
 
 
 
