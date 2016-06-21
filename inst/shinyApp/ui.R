@@ -18,9 +18,13 @@ shinyUI(
                                    tabPanel(gibif_vis,title = "GBIF visualizations")
                                  )),
                         tabPanel("User data",user_data),
-                        tabPanel("Dynamic Map",DynamicMap),
-                        tabPanel("Niche data extraction",define_M)
+                        tabPanel("Dynamic Map",DynamicMap)
 
+
+                        ),
+             navbarMenu("Niche space",
+                        tabPanel("Niche data extraction",define_M),
+                        tabPanel("Known niche",niche_view)
                         )
   )
 )
