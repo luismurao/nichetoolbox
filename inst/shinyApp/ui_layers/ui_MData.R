@@ -25,12 +25,11 @@ define_M <- sidebarLayout(position = "left",
                               # checkboxInput(inputId = "showMap", "Show map of M",value = T),
                               # checkboxInput(inputId = "showTab", "Show data table",value = T),
                               downloadButton(outputId = "downloadExtraction",label = "Download data"),
-                              busyIndicator("Clipping layers",wait = 0),
+                              busyIndicator("Loading..",wait = 0),
                               conditionalPanel("input.extracted_area == 'polygon_of_M'", downloadButton(outputId = "downClippedR",label = "Clipped Raster"))
-
 
                             )),
                           mainPanel(
                             #conditionalPanel(condition = "input.showMap==true",h3("Map of M and data points"),plotOutput("poligonoM")),
-                            dataTableOutput("dataM"), plotOutput("raster_sample")
+                            dataTableOutput("dataM")
                           ))
