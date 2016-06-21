@@ -60,10 +60,12 @@ occ_extract <- reactive({
 })
 
 data_extraction <- reactive({
-  if(input$extracted_area == "all_area")
+  if(input$extracted_area == "all_area" && !is.null(occ_extract()))
     return(occ_extract())
-  if(input$extracted_area == "polygon_of_M")
+  if(input$extracted_area == "polygon_of_M" && !is.null(occ_extract_from_mask()))
     return(occ_extract_from_mask())
+  else
+    return(NULL)
 })
 
 
