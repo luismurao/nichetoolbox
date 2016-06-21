@@ -1,7 +1,4 @@
-# UI layer to display leaflet maps
-nombres <- c(paste0(rep("bio0",9),1:9),paste0("bio",10:19))
 source("load_install_pkgs.R")
-
 
 DynamicMap <- div(class="outer",
 
