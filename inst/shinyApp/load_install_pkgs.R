@@ -27,7 +27,7 @@ if(length(pkgs_ntb_miss)>0L)
   install.packages(pkgs_ntb_miss,
                    repos = "https://cloud.r-project.org/")
 # Load packages
-#options(rgl.useNULL=TRUE)
+options(rgl.useNULL=TRUE)
 sapply(pkgs_ntb,function(x) library(x,character.only = TRUE))
 #rgl.init()
 
