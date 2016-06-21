@@ -23,6 +23,7 @@ materials <- sidebarLayout(position = "left",
                              directoryInput('ras_layers_directory', label = 'Select a raster layers directory'),
                              #selectInput(inputId = 'res',label = 'Select a grid resolution for the bioclimatic vars',choices = c('10 Arc-minutes'='tenArcs','5 Arc-minutes'='fiveArcs','2.5 Arc-minutes'='twoArcs'),selected = 'tenArcs'),
                              bsButton("loadNicheLayers","Load niche layers",icon = icon("upload", lib = "glyphicon"),style = "primary"),
+                             busyIndicator("Loading...",wait = 0),
                              br(),
                              h4("Workflow"),
                              HTML('In order to save what you have done in your session it is important that you select a folder to save a workflow of what you have done inside NicheToolBox'),
@@ -47,6 +48,8 @@ materials <- sidebarLayout(position = "left",
 
                                ),
                            mainPanel(
-                             htmlOutput("page")
+                             #htmlOutput("page"),
+                             plotOutput("niche_layers")
+
                            )
                            )
