@@ -71,40 +71,97 @@ data_extraction <- reactive({
 
 
 output$dataM <- renderDataTable({
-  data_extraction()
+
+  if(is.null(rasterLayers())) {
+    menssage <- "Load niche layers in AppSettings section"
+    data_niche <- data.frame(No_Data = menssage)
+    return(data_niche)
+  }
+  else if(!is.null(rasterLayers()) && input$extracted_area == "all_area"){
+    if(input$datasetM == "gbif_dat" && is.null(data_gbif())){
+      menssage <- "You need to have GBIF data! Search GBIF data in section: Data -> GBIF data"
+      data_niche <- data.frame(No_Data = menssage)
+      return(data_niche)
+    }
+    if(input$datasetM == "updata" && is.null(data_user_clean())){
+      menssage <- "You need to upload your occurrence data! Upload your data in section: Data -> User data"
+      data_niche <- data.frame(No_Data = menssage)
+      return(data_niche)
+    }
+  }
+  else if(input$extracted_area == "polygon_of_M" && is.null(define_M_raster())){
+    menssage <- "You need to define your polygon of M in section: Data -> Dynamic map -> Define a polygon of M"
+    data_niche <- data.frame(No_Data = menssage)
+    return(data_niche)
+  }
+  else if(input$extracted_area == "polygon_of_M" && !is.null(define_M_raster())){
+    if(input$datasetM == "gbif_dat" && is.null(data_gbif())){
+      menssage <- "You need to have GBIF data! Search GBIF data in section: Data -> GBIF data"
+      data_niche <- data.frame(No_Data = menssage)
+      return(data_niche)
+    }
+    if(input$datasetM == "updata" && is.null(data_user_clean())){
+      menssage <- "You need to upload your occurrence data! Upload your data in section: Data -> User data"
+      data_niche <- data.frame(No_Data = menssage)
+      return(data_niche)
+    }
+  }
+  if(!is.null(data_extraction())){
+    data_niche <- data_extraction()
+    return(data_niche)
+  }
+
+
 },
 options = list(aLengthMenu = c(5, 10, 25,
                                50, 100, 500),
-               iDisplayLength = 5))
+               iDisplayLength = 10))
 
-output$raster_sample <- renderPlot({
+
+output$niche_layers <- renderPlot({
 
   if(!is.null(rasterLayers())){
-    if(input$extracted_area == "all_area" && !is.null(data_to_extract())){
-      plot(rasterLayers()[[1]])
-    }
-
-    if(input$extracted_area == "polygon_of_M" && !is.null(data_to_extract()) && !is.null(define_M_raster())){
-      plot(define_M_raster()[[1]])
-    }
-    if(input$extracted_area == "polygon_of_M" && !is.null(data_to_extract()) && is.null(define_M_raster())){
-      messages <- "Define M area using dynamic Map"
-      x <- -10:10
-      y <- x
-      plot(x,y,type="n", xlab="No Data", ylab="No data")
-      text(0,0,messages,cex=3 )
-    }
-
+    plot(rasterLayers()[[1]])
   }
   else{
-    messages <- "Load niche layers in App settings section"
+    messages <- "Load niche layers"
     x <- -10:10
     y <- x
-    plot(x,y,type="n", xlab="No Data", ylab="No data")
+    plot(x,y,type="n", xlab="No Data", ylab="No data",cex=2)
     text(0,0,messages,cex=3 )
   }
 
 })
+
+
+#output$raster_sample <- renderPlot({
+
+#  if(!is.null(rasterLayers())){
+#    if(input$extracted_area == "all_area" && !is.null(data_to_extract())){
+#      plot(rasterLayers()[[1]])
+#    }
+
+#    if(input$extracted_area == "polygon_of_M" && !is.null(data_to_extract()) && !is.null(define_M_raster())){
+#      plot(define_M_raster()[[1]])
+#    }
+#    if(input$extracted_area == "polygon_of_M" && !is.null(data_to_extract()) && is.null(define_M_raster())){
+#      messages <- "Define M area using dynamic Map"
+#      x <- -10:10
+#      y <- x
+#      plot(x,y,type="n", xlab="No Data", ylab="No data")
+#      text(0,0,messages,cex=3 )
+#    }
+
+#  }
+#  else{
+#    messages <- "Load niche layers in App settings section"
+#    x <- -10:10
+#    y <- x
+#    plot(x,y,type="n", xlab="No Data", ylab="No data")
+#    text(0,0,messages,cex=3 )
+#  }
+
+#})
 
 # Download data table with niche vars values
 
