@@ -14,7 +14,7 @@ define_M_raster <- reactive({
 
 })
 
-# Select a dataset
+# Select a geograpghic dataset
 
 data_to_extract <- reactive({
   if(input$datasetM == "gbif_dat" && !is.null(data_gbif()))
