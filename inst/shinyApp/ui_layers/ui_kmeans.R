@@ -1,6 +1,7 @@
 #-----------------------------------------------------------------------------------
 # Niche groups: Groups may reflect local adaptations.
 layer_names_kmeans <- c("Extract niche values "=1)
+dataset_cluster <- c("Extract niche values "=1)
 ui_kmeans <- sidebarLayout(position = "left",
                               sidebarPanel(
                                 titlePanel("Niche ToolBox"),
@@ -23,7 +24,7 @@ ui_kmeans <- sidebarLayout(position = "left",
                                 #selectInput(inputId ="grupos" ,"Gruop by",choices = c("K-means"="kmeans","An ID in the Database"="bd")),
                                 checkboxInput(inputId ="grupos" ,"Group by an ID in the data base:",value = FALSE),
                                 conditionalPanel(condition = "input.grupos==true",
-                                                 selectInput("vgrupo",label = "Select the variable",choices = names(dataset)[1])),
+                                                 selectInput("vgrupo",label = "Select the variable",choices = names(dataset_cluster)[1])),
                                 numericInput(inputId = "cex1","Font size",min = 0.05,max = 1,step = 0.01,value = 0.35),
                                 sliderInput("alpha",label = "Ellipsoid transparency",min = 0,max=1,value = 0.1,step = 0.05)
                                 #downloadButton("down3dClust",label = "Download plot")),
