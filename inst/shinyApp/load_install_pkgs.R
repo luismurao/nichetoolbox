@@ -13,7 +13,7 @@ devtools::install_github("luismurao/leaflet")
 # NicheToolbox dependencies
 
 pkgs_ntb <- c('mgcv','ggplot2','ggmap','png','rmarkdown','knitr',"leaflet",
-              "spocc","googleVis",'rasterVis','stringr','grid','shinyFiles',
+              "spocc","googleVis",'rasterVis','stringr','grid',
               'plyr','sp','raster','rgl','shiny',"rgdal","shinyBS","shinyjs",
               'rglwidget','plot3D','maps','car','mixtools','corrplot',
               'pvclust','fpc','snow',"sqldf",'shinysky',
