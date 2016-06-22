@@ -1,4 +1,4 @@
-ui_files <- list.files(path = "ui_layers",full.names = TRUE)
+ui_files <- list.files(path = "ui_layers",pattern = "*.R$",full.names = TRUE)
 load_ui <- sapply(ui_files,source)
 source("load_install_pkgs.R")
 shinyUI(
@@ -25,6 +25,9 @@ shinyUI(
              navbarMenu("Niche space",
                         tabPanel("Niche data extraction",define_M),
                         tabPanel("Known niche",niche_view)
+                        ),
+             navbarMenu("Niche clustering",
+                        tabPanel("K-means",ui_kmeans)
                         )
   )
 )
