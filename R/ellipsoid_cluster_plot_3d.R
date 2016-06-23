@@ -26,7 +26,7 @@ ellipsoid_cluster_plot_3d <- function(niche_data,cluster_ids,x,y,z,ellips,alpha,
 
   cols <- sapply(vgrupo,function(x) return(colores[x]))
 
-  ifelse(grupos ==FALSE,cols <- km,cols <- cols)
+  ifelse(grupos ==FALSE,cols <- "black",cols <- cols)
   par3d(cex=.8)
   if(grupos)
     plot3d(dat_clus,type="n",col=cols)
@@ -43,7 +43,7 @@ ellipsoid_cluster_plot_3d <- function(niche_data,cluster_ids,x,y,z,ellips,alpha,
       ell.radius <- sqrt(dfn * qf(level, dfn, dfd))
       ellips <- ellipsoid(center=c(mean(x), mean(y), mean(z)),
                           shape=cov(cbind(x,y,z)), radius=ell.radius)
-      shade3d(ellips, col=i, alpha=alpha,lit=FALSE)
+      shade3d(ellips, col=colores[i], alpha=alpha,lit=FALSE)
       #wire3d(ellips, col=i,alpha=alpha)
 
     }
@@ -60,7 +60,7 @@ ellipsoid_cluster_plot_3d <- function(niche_data,cluster_ids,x,y,z,ellips,alpha,
                 useFreeType=T,
                 #family="mono",
                 #font=1,
-                justify =  "center",cex=cex1))
+                cex=cex1))
   }
 
 }
