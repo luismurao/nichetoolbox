@@ -30,5 +30,7 @@ ui_kmeans <- sidebarLayout(position = "left",
                                 #downloadButton("down3dClust",label = "Download plot")),
                                 ),
                               mainPanel(
-                                rglwidgetOutput("kmeans_clust_3d",width = "800px",height = "800px")
+                                rglwidgetOutput("kmeans_clust_3d",width = "800px",height = "800px"),
+                                #plotOutput("kmeans_geo")
+                                leafletOutput(outputId = "kmeans_geo_leaflet")
                               ))
