@@ -14,7 +14,7 @@
 
 ellipsoid_cluster_plot_3d <- function(niche_data,cluster_ids,x,y,z,ellips,alpha,grupos,vgrupo,cex1=0.25,level){
 
-  km <- cluseter_ids
+  km <- cluster_ids
   nclus <- length(unique(km))
   dat_clus <- niche_data[,c(x,y,z)]
 
