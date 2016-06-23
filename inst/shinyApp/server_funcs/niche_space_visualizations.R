@@ -76,8 +76,11 @@ output$downloadLatLongNiche <- downloadHandler(
 
 observe({
   if(!is.null(niche_data())){
-    updateSelectInput(session,"x",choices = names(niche_data()),selected = names(niche_data())[1])
-    updateSelectInput(session,"y",choices = names(niche_data()),selected =  names(niche_data())[2])
-    updateSelectInput(session,"z",choices = names(niche_data()),selected =  names(niche_data())[3])
+    updateSelectInput(session,"x",choices = names(niche_data()),
+                      selected = names(niche_data())[1])
+    updateSelectInput(session,"y",choices = names(niche_data()),
+                      selected =  names(niche_data())[2])
+    updateSelectInput(session,"z",choices = names(niche_data()),
+                      selected =  names(niche_data())[3])
   }
 })
