@@ -60,10 +60,11 @@ kmeans_3d_plot_data <- reactive({
       cluster_ids <- cluster_ids[not_dup_niche_space]
       dat_clus <-  niche_data[not_dup_niche_space,c(input$x1,input$y1,input$z1)]
       vgrupo <-  geographic_data()[,input$vgrupo]
+      lat_long <- data_to_extract()[not_dup_niche_space,]
       vgrupo <- vgrupo[not_dup_niche_space]
       d_b1 <- na.omit(dat_clus)
       d_b1 <- data.frame(d_b1)
-      return(list(data=d_b1,cluster_ids=cluster_ids,vgrupo=vgrupo))
+      return(list(data=d_b1,cluster_ids=cluster_ids,vgrupo=vgrupo,lat_long=lat_long))
     })
   }
   else
@@ -86,7 +87,60 @@ output$kmeans_clust_3d <- renderRglwidget({
   else
     return(NULL)
 
+})
 
+# Cluster projection in Geographic space
+
+output$kmeans_geo <- renderPlot({
+  if(!is.null(kmeans_3d_plot_data())){
+    maps::map("world", fill=TRUE, col="white",
+               ylim=c(-60, 90), mar=c(0,0,0,0))
+    titlemap <- bquote(bold("K-means"~"clustering"~"projection"~"in"~"G-space"))
+    title(titlemap,cex=40,cex.main = 2)
+    axis(1,las=1)
+    axis(2,las=1)
+    cluster_legend <- unique(kmeans_3d_plot_data()$cluster_ids)
+    colL <-   unique(kmeans_3d_plot_data()$cluster_ids)
+    colores <- kmeans_3d_plot_data()$cluster_ids
+    legend("topright",legend = cluster_legend,col=colL,pch=20,ncol = 2,cex=0.95)
+    points(kmeans_3d_plot_data()$lat_long, col=colL,cex=1.5,pch=20)
+  }
+  else
+    return(NULL)
+
+})
+
+leaflet_cluster_map <- reactive({
+  if(!is.null(kmeans_3d_plot_data())){
+    spatial_df <- sp::SpatialPointsDataFrame(
+      kmeans_3d_plot_data()$lat_long,
+      data.frame(cluster_ids=factor(
+        kmeans_3d_plot_data()$cluster_ids))
+    )
+    colores <- c("black","brown4","blue","cyan",
+                 "darkgoldenrod","darkmagenta",
+                 "darkgreen","chocolate4","azure3",
+                 "chartreuse4","aquamarine","brown1",
+                 "chocolate1","coral1")
+
+    pal <-colorFactor(colores,
+                      domain =1:length(colores))
+
+    cluster_map <- leaflet(spatial_df) %>% addTiles() %>%
+      addCircleMarkers(
+        color = ~pal(cluster_ids),
+        stroke = FALSE, fillOpacity = input$alpha + 0.27
+      )
+    return(cluster_map)
+  }
+  else
+    return(NULL)
+})
+
+output$kmeans_geo_leaflet <- renderLeaflet({
+  if(!is.null(leaflet_cluster_map())){
+    leaflet_cluster_map()
+  }
 })
 
 observe({
