@@ -13,8 +13,8 @@ define_M <- sidebarLayout(position = "left",
                             wellPanel(
 
                               selectInput("datasetM","Select the data set you want to work with",
-                                          choices = c("Uploaded data"="updata",
-                                                      "GBIF data"="gbif_dat",
+                                          choices = c("GBIF data"="gbif_dat",
+                                                      "User data"="updata",
                                                       #"M data from dynamic map" = "M_data",
                                                       "Just clip my layers"="clipLayers"), selected ="gbif_dat"),
                               selectInput("extracted_area", "Select an area to make the extract",
