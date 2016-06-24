@@ -2,6 +2,7 @@
 
 export(clean_dup)
 export(cov_center)
+export(ellipsoid_cluster_plot_3d)
 export(ellipsoidfit)
 export(occs_history)
 export(rlayers_ntb)
