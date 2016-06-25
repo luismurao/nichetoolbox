@@ -46,14 +46,19 @@ output$nicho <- renderRglwidget({
     ajus <- input$fit
     ellip <- input$ellip
     prop <- as.numeric(input$ellipsoid_vol)
+    open3d(windowRect=c(100,100,700,700))
     if(!is.null(niche_data())){
-      open3d(windowRect=c(100,100,700,700))
+
       niche_plot(data = niche_data(),x = x,y = y,z = z,prop =prop ,
                  gtype = gtype,ajus = ajus,ellip = ellip)
-      rglwidget()
+
     }
-    else
-      return(NULL)
+    else{
+      message <- "No niche data: extract niche values from layers! (go to Niche space -> Niche data extraction)"
+      text3d(x = 0,y = 0,texts = message)
+
+    }
+    rglwidget()
   })
 
 })
