@@ -28,6 +28,10 @@ shinyUI(
                         ),
              navbarMenu("Niche clustering",
                         tabPanel("K-means",ui_kmeans)
+                        ),
+             navbarMenu("Niche correlations",
+                        tabPanel("Table",corre_table_1),
+                        tabPanel("Plot",corre_plot_1)
                         )
   )
 )
