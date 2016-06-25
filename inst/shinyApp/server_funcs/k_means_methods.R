@@ -72,21 +72,26 @@ kmeans_3d_plot_data <- reactive({
 })
 
 output$kmeans_clust_3d <- renderRglwidget({
+  open3d(windowRect=c(100,100,700,700))
   if(!is.null(kmeans_3d_plot_data())){
+
     withProgress(message = 'Doing computations', value = 0, {
-      open3d(windowRect=c(100,100,700,700))
+
       ellipsoid_cluster_plot_3d(niche_data = kmeans_3d_plot_data()$data,
                                 cluster_ids = kmeans_3d_plot_data()$cluster_ids,
                                 vgrupo = kmeans_3d_plot_data()$vgrupo,
                                 x = input$x1,y = input$y1,
                                 z = input$z1,alpha = input$alpha,ellips = input$ellips,
                                 grupos=input$grupos,input$cex1,level=input$kmeans_level)
-      rglwidget()
+
     })
   }
-  else
-    return(NULL)
+  else{
+    message <- "No niche data: extract niche values from layers! (go to Niche space -> Niche data extraction)"
+    text3d(x = 0,y = 0,texts = message)
 
+  }
+  rglwidget()
 })
 
 # Cluster projection in Geographic space
