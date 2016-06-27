@@ -72,7 +72,7 @@ kmeans_3d_plot_data <- reactive({
 })
 
 output$kmeans_clust_3d <- renderRglwidget({
-  open3d(windowRect=c(100,100,700,700))
+  open3d(windowRect=c(100/2,100/2,700/2,700/2))
   if(!is.null(kmeans_3d_plot_data())){
 
     withProgress(message = 'Doing computations', value = 0, {
@@ -85,6 +85,10 @@ output$kmeans_clust_3d <- renderRglwidget({
                                 grupos=input$grupos,input$cex1,level=input$kmeans_level)
 
     })
+  }
+  else if(!is.null(data_extraction()) && is.null(kmeans_3d_plot_data())){
+    message <- "Press Go!!! button"
+    text3d(x = 0,y = 0,texts = message)
   }
   else{
     message <- "No niche data: extract niche values from layers! (go to Niche space -> Niche data extraction)"
