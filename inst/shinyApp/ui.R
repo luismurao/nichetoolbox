@@ -30,6 +30,7 @@ shinyUI(
                         tabPanel("K-means",ui_kmeans)
                         ),
              navbarMenu("Niche correlations",
+                        tabPanel("Strong correlations",strong_corre),
                         tabPanel("Table",corre_table_1),
                         tabPanel("Plot",corre_plot_1)
                         )
