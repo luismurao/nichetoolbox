@@ -73,38 +73,43 @@ data_extraction <- reactive({
 output$dataM <- renderDataTable({
 
   if(is.null(rasterLayers())) {
-    menssage <- "Load niche layers in AppSettings section"
-    data_niche <- data.frame(No_Data = menssage)
+    message <- "Load niche layers in AppSettings section"
+    data_niche <- data.frame(No_Data = message)
     return(data_niche)
   }
   else if(!is.null(rasterLayers()) && input$extracted_area == "all_area"){
     if(input$datasetM == "gbif_dat" && is.null(data_gbif())){
-      menssage <- "You need to have GBIF data! Search GBIF data in section: Data -> GBIF data"
-      data_niche <- data.frame(No_Data = menssage)
+      message <- "You need to have GBIF data! Search GBIF data in section: Data -> GBIF data"
+      data_niche <- data.frame(No_Data = message)
       return(data_niche)
     }
     if(input$datasetM == "updata" && is.null(data_user_clean())){
-      menssage <- "You need to upload your occurrence data! Upload your data in section: Data -> User data"
-      data_niche <- data.frame(No_Data = menssage)
+      message <- "You need to upload your occurrence data! Upload your data in section: Data -> User data"
+      data_niche <- data.frame(No_Data = message)
       return(data_niche)
     }
   }
   else if(input$extracted_area == "polygon_of_M" && is.null(define_M_raster())){
     menssage <- "You need to define your polygon of M in section: Data -> Dynamic map -> Define a polygon of M"
-    data_niche <- data.frame(No_Data = menssage)
+    data_niche <- data.frame(No_Data = message)
     return(data_niche)
   }
   else if(input$extracted_area == "polygon_of_M" && !is.null(define_M_raster())){
     if(input$datasetM == "gbif_dat" && is.null(data_gbif())){
-      menssage <- "You need to have GBIF data! Search GBIF data in section: Data -> GBIF data"
-      data_niche <- data.frame(No_Data = menssage)
+      message <- "You need to have GBIF data! Search GBIF data in section: Data -> GBIF data"
+      data_niche <- data.frame(No_Data = message)
       return(data_niche)
     }
     if(input$datasetM == "updata" && is.null(data_user_clean())){
-      menssage <- "You need to upload your occurrence data! Upload your data in section: Data -> User data"
-      data_niche <- data.frame(No_Data = menssage)
+      message <- "You need to upload your occurrence data! Upload your data in section: Data -> User data"
+      data_niche <- data.frame(No_Data = message)
       return(data_niche)
     }
+  }
+  if((!is.null(data_user_clean()) || data_gbif()) && (!is.null(define_M_raster()) || !is.null(rasterLayers())) && is.null(data_extraction())){
+    message <- "Press Go!!! button"
+    data_niche <- data.frame(Press_Go = message)
+    return(data_niche)
   }
   if(!is.null(data_extraction())){
     data_niche <- data_extraction()
