@@ -3,6 +3,14 @@ data_gbif_search <- reactive({
   input$search_gbif_data
   isolate({
     if(input$search_gbif_data){
+      # Test if the API is working
+      test <- searh_gbif_data(genus = "Ambystoma",
+                              species = "tigrinum",
+                              occlim = 5,
+                              writeFile = FALSE)
+      if(is.null(test))
+        return(0)
+
       data <- searh_gbif_data(genus = input$genus,
                               species = input$species,
                               occlim = input$occlim,
@@ -80,6 +88,7 @@ output$gbif_table <- renderDataTable({
   df0 <- data_gbif_search()
   df1 <- data_gbif()
 
+
   if(is.null(df1) && is.null(df0)){
     warn <- "Enter species genus (or family) and species name in the left panel"
     nulo <- " "
@@ -87,11 +96,18 @@ output$gbif_table <- renderDataTable({
     data_null <- data.frame(Data=data_null)
     return(data_null)
   }
+
   if(is.data.frame(df1))
     return(df1)
+
+  # Test if GBIF API is working
+  if(df0 == 0){
+    warn <- "GBIF API is not working, try later :("
+    data_null <- data.frame(Data=warn)
+    return(data_null)
+  }
+
   else{
-    print(df0)
-    print(df1)
     warn <- ": No ocurrences found"
     dat <- paste(input$genus, input$species, warn,sep=" ")
     nulo <- " "
