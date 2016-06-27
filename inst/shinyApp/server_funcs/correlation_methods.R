@@ -99,3 +99,42 @@ output$download_cor_plot <- downloadHandler(
   }
 )
 
+
+#-----------------------------------------------------------
+# Correlation finder
+#-----------------------------------------------------------
+
+summs_corr_var<- reactive({
+
+  if(!is.null(corr_table())){
+    cor_mat <- corr_table()
+
+    cor_vars_summary <- correlation_finder(cor_mat = cor_mat,
+                                           threshold = input$cor_threshold,
+                                           verbose = input$verbose_cor)
+    return(cor_vars_summary)
+
+  }
+  else
+    return(NULL)
+})
+
+output$big_cor <- renderPrint({
+  if(!is.null(corr_table())){
+    return(summs_corr_var())
+  }
+  else{
+    cat("No niche data: extract niche values from layers!
+        \n(go to Niche space -> Niche data extraction)")
+  }
+
+})
+
+output$download_stcor <- downloadHandler(
+  filename = "strongcors.txt",
+  content = function(file) {
+    if(!is.null(summs_corr_var()))
+      capture.output(summs_corr_var(),file = file)
+  }
+)
+
