@@ -1,5 +1,6 @@
 ---
-title: "NicheToolBox data report"
+title: "NicheToolBox long-lat data report"
+date: "`r date()`"
 ---
 
 This is **NicheToolBox data report** here you can find a quick view of the thinks that you have done in the software. Remember that this is free software so it comes with no waranty, please report any bugs you find at <luismurao@comunidad.unam.mx>
@@ -127,49 +128,3 @@ leafMapDynamic() %>%  addTiles(
 
 ```
 
-```{r results="asis",echo=FALSE}
-niche_data <- data_extraction()
-if(!is.null(niche_data)){
-  cat("## Niche values")
-  cat("\n")
-  cat("#### Raster layeres ")
-  printInfoNiche <- TRUE
-} else{
-  printInfoNiche <- FALSE
-}
-```
-
-
-```{r results='asis', echo=printInfoNiche,eval=printInfoNiche}
-print(rasterLayers())
-```
-
-
-```{r results='asis', echo=FALSE,eval=printInfoNiche}
-cat("#### Niche values of", ifelse(input$extracted_area== "all_area",print("All raster area"),print("M polygon area")))
-cat("using", ifelse(input$datasetM== "gbif_dat",print("GBIF data"), print("User data")))
-```
-
-```{r results='asis', echo=printInfoNiche,eval=FALSE}
-niche_data <- data_extraction()
-summary(niche_data)
-```
-
-```{r,eval=printInfoNiche,echo=FALSE,results='asis'}
-if(!is.null(data_extraction())){
-  cont <- 1 
-  nvars <- dim(data_extraction())[2]
-  if(nvars > 7){
-      for(i in 1:nvars){
-        if(i%%7==0){
-          print(kable(summary(data_extraction()[,cont:i])))
-          cont <- i + 1
-          }
-        }
-  }
-  lprint <- data_extraction()[,cont:nvars]
-  names(lprint) <- names(data_extraction())[cont:nvars]
-  kable(summary(lprint))
-}
-   
-```
