@@ -2,8 +2,9 @@
 source("server_funcs/data_gbif.R",local = T)
 source("server_funcs/dynamicMapMethods.R",local = T)
 source("server_funcs/niche_layers_extract.R",local = T)
-
-
+source("server_funcs/niche_space_visualizations.R",local = T)
+source("server_funcs/k_means_methods.R",local = T)
+source("server_funcs/correlation_methods.R",local = T)
 
 observeEvent(
   ignoreNULL = TRUE,
@@ -159,11 +160,11 @@ myPolygon <- reactive({
 # Saving workflow
 # -----------------------------------------------------------------
 
+
+
 # -----------------------------------------------------------------------
-# Observer for wrting to the Workflow the cleaned data from dynamic Map
+# Observer for writing to the Workflow geographic data report
 # ---------------------------------------------------------------------
-
-
 
 observeEvent(input$saveState, {
 
@@ -171,11 +172,11 @@ observeEvent(input$saveState, {
   if(nchar(workflowDir()) > 0L){
 
     # Create a directory for OCC data.
-    data_dir_path <- paste0(workflowDir(),"OccDataNicheToolBox")
+    data_dir_path <- paste0(workflowDir(),"NicheToolBox_OccData")
     if(!dir.exists(data_dir_path))
       dir.create(data_dir_path)
     # Create a directory for workflow report
-    wf_dir_path <- paste0(workflowDir(),"worflowReport")
+    wf_dir_path <- paste0(workflowDir(),"NicheToolBox_workflowReport")
     if(!dir.exists(wf_dir_path))
       dir.create(wf_dir_path)
 
@@ -188,7 +189,7 @@ observeEvent(input$saveState, {
     if(file.exists(anifile)) file.copy(anifile, anima_save)
 
     #------------------------------------------------------------
-    # NicheToolBox report
+    # NicheToolBox data report
     #------------------------------------------------------------
 
     # Path to report source
@@ -306,4 +307,63 @@ observeEvent(input$saveState, {
     }
 
   }
+})
+
+
+# -----------------------------------------------------------------------
+# Observer for writing to the Workflow: Niche data report
+# ---------------------------------------------------------------------
+
+observeEvent(input$saveState, {
+  niche_data <- data_extraction()
+  if(nchar(workflowDir()) > 0L && !is.null(niche_data)){
+    # Create a directory for niche data.
+    niche_dir_path <- paste0(workflowDir(),"NicheToolBox_NicheData")
+    if(!dir.exists(niche_dir_path))
+      dir.create(niche_dir_path)
+    # Create a directory for workflow report
+    wf_dir_path <- paste0(workflowDir(),"NicheToolBox_workflowReport")
+    if(!dir.exists(wf_dir_path))
+      dir.create(wf_dir_path)
+
+
+    #------------------------------------------------------------
+    # NicheToolBox niche data report
+    #------------------------------------------------------------
+
+    # Path to report source
+
+    niche_data_report_path <- system.file("shinyApp/ntb_report/niche_data_report.Rmd",
+                                          package = "nichetoolbox")
+
+    # save HTML path
+
+    niche_data_report_save <- paste0(wf_dir_path,"/","niche_data_report.html")
+
+    render(input = niche_data_report_path,
+           output_format = html_document(pandoc_args = c("+RTS", "-K64m","-RTS"),
+                                         highlight="haddock",
+                                         toc = TRUE,theme = "readable"),
+           output_file = niche_data_report_save)
+
+
+  }
+
+
+  # Save data extraction
+
+  if(!is.null(niche_data())){
+
+    niche_data <- niche_data()
+    ifelse(input$datasetM== "gbif_dat",data <- "GBIF_data", data <- "User_data")
+    ifelse(input$extracted_area== "all_area",
+           raster_data <- "All_raster_area",raster_data <- "M_polygon_area")
+
+    write.csv(niche_data, paste0(niche_dir_path,
+                                   "/niche_",data,"_",raster_data,".csv"),
+              row.names = FALSE)
+
+  }
+
+
 })
