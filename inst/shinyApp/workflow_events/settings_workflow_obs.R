@@ -362,8 +362,27 @@ observeEvent(input$saveState, {
     write.csv(niche_data, paste0(niche_dir_path,
                                    "/niche_",data,"_",raster_data,".csv"),
               row.names = FALSE)
+    if(!is.null(kmeans_df()))
+      write.csv(kmeans_df(), paste0(niche_dir_path,
+                                   "/niche_",data,"_kmeansCluster.csv"),
+                row.names = FALSE)
+
+    if(!is.null(corr_table())){
+      write.csv(corr_table(), paste0(niche_dir_path,
+                                    "/niche_",data,"_corretable.csv"),
+                row.names = FALSE)
+      capture.output(print(summs_corr_var()),paste0(niche_dir_path,
+                                             "/niche_",data,"_correlationfinder.txt"))
+      pdf(paste0(niche_dir_path,
+                 "/niche_",data,"_correlogram.pdf"),width = 8,height = 8)
+      plot(corr_plot())
+      dev.off()
+
+    }
 
   }
 
 
 })
+
+
