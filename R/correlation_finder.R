@@ -54,13 +54,13 @@ correlation_finder <- function(cor_mat,threshold,verbose=TRUE){
       }
     }
 
-    cat('*****************************************************************\n\n')
-    cat(' Here is a list of variables that can summarize your niche\n')
-    cat(' information, according to the threshold of',threshold,":\n\n")
-    cat(' ',descriptors,'\n\n')
-    cat('*****************************************************************\n\n')
 
     if(verbose){
+      cat('*****************************************************************\n\n')
+      cat(' Here is a list of variables that can summarize your niche\n')
+      cat(' information, according to the threshold of',threshold,":\n\n")
+      cat(' ',descriptors,'\n\n')
+      cat('*****************************************************************\n\n')
 
       cat('----------------------------------------------------------------\n\n')
       cat('Correlation list:\n\n')
@@ -70,8 +70,9 @@ correlation_finder <- function(cor_mat,threshold,verbose=TRUE){
         print(list_cor[[i]])
         cat('----------------------------------------------------------------\n\n')
       }
+      return()
     }
-    return(descriptors)
+    return(list(descriptors=descriptors,list_cor=list_cor))
   }
   else
     stop("cor_mat must be a matrix or a data.frame")
