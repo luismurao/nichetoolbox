@@ -181,6 +181,7 @@ leaflet_cluster_map()
 ```
 
 
+
 ```{r results="asis",echo=FALSE,eval=TRUE}
 correlations <- corr_table()
 if(!is.null(correlations)){
@@ -188,26 +189,44 @@ if(!is.null(correlations)){
 } else printInfoCorre <- 0
 ```
 
-
 ```{r results="asis",echo=FALSE,eval=printInfoCorre}
 cat("## Niche correlations")
 ```
 
 ```{r results="asis",echo=FALSE,eval=printInfoCorre}
-cat("## Correlation table")
+cat("### Correlation finder")
+```
+
+```{r results="asis",echo=FALSE,eval=printInfoCorre}
+cat("Strong correlations according to a correlation threshold of", input$cor_threshold)
+```
+
+```{r, echo=printInfoCorre,eval=printInfoCorre}
+corr_finder <- summs_corr_var()
+print(corr_finder)
+```
+
+
+```{r results="asis",echo=FALSE,eval=printInfoCorre}
+cat("### Correlation table")
 ```
 
 ```{r results="asis",echo=printInfoCorre,eval=FALSE}
-corre_mat_lower <- lower.tri(corr_table(), diag = FALSE)
-corre_mat <- corr_table()[corre_mat]
-
+corre_mat <- corr_table()
 ```
 
 ```{r results="asis",echo=FALSE,eval=printInfoCorre}
 if(!is.null(corr_table())){
-  corre_mat_lower <- lower.tri(corr_table(), diag = FALSE)
-  corre_mat <- corr_table()[corre_mat_lower]
+  corre_mat <- round(corr_table(),3)
   print(kable(corre_mat))
 }
 
+```
+
+```{r results="asis",echo=FALSE,eval=printInfoCorre}
+cat("### Correlogram")
+```
+
+```{r results="asis",echo=printInfoCorre,eval=printInfoCorre}
+corr_plot()
 ```
