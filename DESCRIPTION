@@ -2,7 +2,7 @@ Package: nichetoolbox
 Type: Package
 Title: NicheToolbox: from getting biodiversity data to evaluating species
     distribution models in a friendly GUI environment.
-Version: 0.1.2.0
+Version: 0.1.2.5
 Author: Luis Osorio-Olvera <luimurao@gmail.com>,
     Vijay Barve <vijay.barve@gmail.com>,
     Narayani Barve <narayani.ku@gmail.com>,
