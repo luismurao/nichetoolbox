@@ -9,7 +9,7 @@ This is **NicheToolBox data report** here you can find a quick view of the think
 library(knitr)
 library(rgl)
 knitr::opts_chunk$set(echo = TRUE)
-knit_hooks$set(webgl = hook_webgl)
+knit_hooks$set(rgl = hook_rgl, webgl = hook_webgl)
 ```
 
 
@@ -109,7 +109,7 @@ if(!is.null(niche_data())){
   open3d(windowRect=c(100,100,700,700))
   niche_plot(data = niche_data,x = x,y = y,z = z,prop =prop,
              gtype = gtype,ajus = ajus,ellip = ellip)
-  }
+}
 ```
 
 
@@ -161,7 +161,7 @@ cat("### K-means clustering (niche space)")
 ```
 
 
-```{r ,eval=printKmeansPlot,echo=printKmeansPlot,webgl=TRUE}
+```{r kmeans,eval=printKmeansPlot,echo=printKmeansPlot,webgl=TRUE}
 ellipsoid_cluster_plot_3d(niche_data = kmeans_3d_plot_data()$data,
                                 cluster_ids = kmeans_3d_plot_data()$cluster_ids,
                                 vgrupo = kmeans_3d_plot_data()$vgrupo,
@@ -201,10 +201,13 @@ cat("### Correlation finder")
 cat("Strong correlations according to a correlation threshold of", input$cor_threshold)
 ```
 
+
 ```{r, echo=printInfoCorre,eval=printInfoCorre}
-corr_finder <- summs_corr_var()
+corr_finder <- summs_corr_var()$cor_vars
 print(corr_finder)
 ```
+
+
 
 
 ```{r results="asis",echo=FALSE,eval=printInfoCorre}
@@ -227,6 +230,9 @@ if(!is.null(corr_table())){
 cat("### Correlogram")
 ```
 
-```{r results="asis",echo=printInfoCorre,eval=printInfoCorre}
+
+
+```{r corplot1, results="asis",echo=printInfoCorre,eval=printInfoCorre,cache=T,dev="pdf"}
 corr_plot()
 ```
+
