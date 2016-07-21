@@ -371,12 +371,11 @@ observeEvent(input$saveState, {
       write.csv(corr_table(), paste0(niche_dir_path,
                                     "/niche_",data,"_corretable.csv"),
                 row.names = FALSE)
-      capture.output(print(summs_corr_var()),paste0(niche_dir_path,
-                                             "/niche_",data,"_correlationfinder.txt"))
-      pdf(paste0(niche_dir_path,
-                 "/niche_",data,"_correlogram.pdf"),width = 8,height = 8)
-      plot(corr_plot())
-      dev.off()
+
+      niche_dir_path <- paste0(workflowDir(),"NicheToolBox_NicheData")
+      save_corfind <- paste0(niche_dir_path,"/niche_correlationfinder.txt")
+      corr_finder <- summs_corr_var()$cor_vars_summary
+      capture.output(print(corr_finder),file=save_corfind)
 
     }
 

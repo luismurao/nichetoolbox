@@ -104,15 +104,44 @@ output$download_cor_plot <- downloadHandler(
 # Correlation finder
 #-----------------------------------------------------------
 
+print_corfinder <- function(descriptors,list_cor,threshold){
+
+  message <- capture.output({
+
+    cat('*****************************************************************\n\n')
+    cat(' Here is a list of variables that can summarize your niche\n')
+    cat(' information, according to the threshold of',threshold,":\n\n")
+    cat(' ',descriptors,'\n\n')
+    cat('*****************************************************************\n\n')
+    cat('----------------------------------------------------------------\n\n')
+    cat('Correlation list:\n\n')
+
+    for(i in 1:length(list_cor)){
+      cat("Variable",names(list_cor)[i],"is strongly correlated with:\n\n")
+      print(list_cor[[i]])
+      cat('----------------------------------------------------------------\n\n')
+    }
+  })
+  return(message)
+}
+
 summs_corr_var<- reactive({
 
   if(!is.null(corr_table())){
     cor_mat <- corr_table()
 
-    cor_vars_summary <- correlation_finder(cor_mat = cor_mat,
-                                           threshold = input$cor_threshold,
-                                           verbose = input$verbose_cor)
-    return(cor_vars_summary)
+    cor_vars  <- correlation_finder(cor_mat = cor_mat,
+                                    threshold = input$cor_threshold,
+                                    verbose = input$verbose_cor)
+
+    cor_vars2  <- correlation_finder(cor_mat = cor_mat,
+                                    threshold = input$cor_threshold,
+                                    verbose = FALSE)
+    cor_vars_summary <- print_corfinder(cor_vars2$descriptors,
+                                        cor_vars2$list_cor,
+                                        input$cor_threshold)
+
+    return(list(cor_vars_summary=cor_vars_summary,cor_vars=cor_vars))
 
   }
   else
@@ -121,7 +150,7 @@ summs_corr_var<- reactive({
 
 output$big_cor <- renderPrint({
   if(!is.null(corr_table())){
-    return(summs_corr_var())
+    return(summs_corr_var()$cor_vars)
   }
   else{
     cat("No niche data: extract niche values from layers!
@@ -134,7 +163,7 @@ output$download_stcor <- downloadHandler(
   filename = "strongcors.txt",
   content = function(file) {
     if(!is.null(summs_corr_var()))
-      capture.output(summs_corr_var(),file = file)
+      capture.output(summs_corr_var()$cor_vars_summary,file = file)
   }
 )
 
