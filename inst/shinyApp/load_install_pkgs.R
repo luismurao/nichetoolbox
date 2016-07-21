@@ -12,12 +12,12 @@ if(length(pkgs_miss)>0L){
 devtools::install_github("luismurao/leaflet")
 # NicheToolbox dependencies
 
-pkgs_ntb <- c('mgcv','ggplot2','ggmap','png','rmarkdown','knitr',"leaflet",
+pkgs_ntb <- c('mgcv','ggplot2','rmarkdown','knitr',"leaflet",
               "spocc","googleVis",'rasterVis','stringr','grid',
               'plyr','sp','raster','rgl','shiny',"rgdal","shinyBS","shinyjs",
               'rglwidget','plot3D','maps','car','mixtools','corrplot',
-              'pvclust','fpc','snow',"sqldf",'shinysky',
-              'maptools','ROCR','AUC','psych','vcd','shinythemes',
+              'pvclust','fpc','snow',"sqldf",'shinysky','cluster',
+              'maptools','psych','vcd','shinythemes',
               'KernSmooth','dplyr','dygraphs','shinysky','nichetoolbox')
 
 # Missing packages
