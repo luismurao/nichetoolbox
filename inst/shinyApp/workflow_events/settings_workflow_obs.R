@@ -5,6 +5,7 @@ source("server_funcs/niche_layers_extract.R",local = T)
 source("server_funcs/niche_space_visualizations.R",local = T)
 source("server_funcs/k_means_methods.R",local = T)
 source("server_funcs/correlation_methods.R",local = T)
+source("server_funcs/ellipsoid_methods.R",local = T)
 
 observeEvent(
   ignoreNULL = TRUE,

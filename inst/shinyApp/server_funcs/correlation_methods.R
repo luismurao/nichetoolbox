@@ -141,7 +141,7 @@ summs_corr_var<- reactive({
                                         cor_vars2$list_cor,
                                         input$cor_threshold)
 
-    return(list(cor_vars_summary=cor_vars_summary,cor_vars=cor_vars))
+    return(list(cor_vars_summary=cor_vars_summary,cor_vars=cor_vars,descriptors=cor_vars2$descriptors))
 
   }
   else

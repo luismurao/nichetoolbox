@@ -33,6 +33,10 @@ shinyUI(
                         tabPanel("Strong correlations",strong_corre),
                         tabPanel("Table",corre_table_1),
                         tabPanel("Plot",corre_plot_1)
-                        )
+                        ),
+             navbarMenu("ENM",
+                        tabPanel("Ellipsoids in G",ellipsoid_inter),
+                        tabPanel("Ellipsoids in E",ellipsoid_Graph)
+             )
   )
 )
