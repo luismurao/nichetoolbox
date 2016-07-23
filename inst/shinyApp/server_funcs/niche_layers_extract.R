@@ -31,9 +31,11 @@ occ_extract_from_mask <- reactive({
     if(input$run_extract){
       if(!is.null(define_M_raster()) && !is.null(data_to_extract())){
         data <- data.frame(extract(define_M_raster(),
-                                   data_to_extract()))
+                                   data_to_extract(),na.rm=FALSE))
+        xy_data_index <- which(!is.na(data[,1]))
+        xy_data <- data_to_extract()[xy_data_index,]
         data <- na.omit(data)
-        return(data)
+        return(list(data=data,xy_data=xy_data,xy_data_index=xy_data_index))
       }
       else
         return(NULL)
@@ -63,7 +65,7 @@ data_extraction <- reactive({
   if(input$extracted_area == "all_area" && !is.null(occ_extract()))
     return(occ_extract())
   if(input$extracted_area == "polygon_of_M" && !is.null(occ_extract_from_mask()))
-    return(occ_extract_from_mask())
+    return(occ_extract_from_mask()$data)
   else
     return(NULL)
 })

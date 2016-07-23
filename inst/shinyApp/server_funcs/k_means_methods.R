@@ -23,10 +23,14 @@ niche_data_k_means <- reactive({
 # Geographic data
 
 geographic_data <- reactive({
-  if(input$datasetM == "gbif_dat" && !is.null(data_gbif()))
+  if(input$datasetM == "gbif_dat" && !is.null(data_gbif()) && input$extracted_area == "all_area")
     return(data_gbif())
-  if(input$datasetM == "updata" && !is.null(data_user_clean()))
+  if(input$datasetM == "updata" && !is.null(data_user_clean()) && input$extracted_area == "all_area")
     return(data_user_clean())
+  if(input$datasetM == "gbif_dat" && input$extracted_area == "polygon_of_M" && !is.null(occ_extract_from_mask()))
+    return(data_gbif()[occ_extract_from_mask()$xy_data_index,])
+  if(input$datasetM == "updata" && input$extracted_area == "polygon_of_M" && !is.null(occ_extract_from_mask()))
+    return(data_user_clean()[occ_extract_from_mask()$xy_data_index,])
   else
     return(NULL)
 })
@@ -40,7 +44,10 @@ kmeans_df <- reactive({
     nclus <- as.numeric(input$nclust)
     km <- kmeans(niche_data,centers=nclus,iter.max=100,trace=F)
     cluster <- km$cluster
-    geo_dat <- data_to_extract()
+    if(input$extracted_area == "polygon_of_M")
+      geo_dat <- occ_extract_from_mask()$xy_data
+    else
+      geo_dat <- data_to_extract()
     kmeans_data <- data.frame(geo_dat,cluster = cluster,niche_data)
     return(kmeans_data)
   }
@@ -60,7 +67,11 @@ kmeans_3d_plot_data <- reactive({
       cluster_ids <- cluster_ids[not_dup_niche_space]
       dat_clus <-  niche_data[not_dup_niche_space,c(input$x1,input$y1,input$z1)]
       vgrupo <-  geographic_data()[,input$vgrupo]
-      lat_long <- data_to_extract()[not_dup_niche_space,]
+      if(input$extracted_area == "polygon_of_M")
+        lat_long <- data_to_extract()[occ_extract_from_mask()$xy_data_index,]
+      else
+        lat_long <- data_to_extract()
+      lat_long <- lat_long[not_dup_niche_space,]
       vgrupo <- vgrupo[not_dup_niche_space]
       d_b1 <- na.omit(dat_clus)
       d_b1 <- data.frame(d_b1)
