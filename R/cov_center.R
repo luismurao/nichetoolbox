@@ -82,6 +82,56 @@ cov_center <- function(data,mve=TRUE,level,vars=NULL){
     centroid <- colMeans(data)
     vari <- cov(data)
   }
-  return(list(centroid=centroid,covariance=vari,data=data))
+  # Niche Volume (ellipsoid volume)
+  #eli_vol <- structure(list(cov = vari,
+  #                          loc = centroid,
+  #                          d2 = qchisq(0.95, df = dim(vari)[1])),
+  #                     class = "ellipsoid")
+  #niche_volume <- volume(eli_vol)
+
+  # Axis length computations
+
+  eigen_vals  <- eigen(vari)$values
+  eigen_vecs  <- eigen(vari)$vectors
+
+  eigen_scale  <- eigen_vecs %*% diag(sqrt(eigen_vals))
+  for(i in 1:dim(vari)[1]){
+    assign(paste0("x_m",i), rbind(centroid[i] + eigen_scale[i, ],
+                                  centroid[i] - eigen_scale[i, ]))
+  }
+  expre1 <- paste0("x_m",1:dim(vari)[1])
+  centroid_text <- paste0("c(",paste0(centroid,collapse = ","),")")
+  axis_length <- list()
+  for(k in 1:dim(vari)[1]){
+    expre2 <- paste0(expre1,"[",1,",",k,"],")
+    expre3 <- paste0("sqrt(sum((c(",paste0(expre2,collapse = ""),
+                     "NULL) - ",centroid_text ,")^2","))*2")
+    assign(letters[k],eval(parse(text=expre3)))
+    axis_length[[k]] <- eval(parse(text = letters[k]))
+
+  }
+  names(axis_length) <- letters[1:dim(vari)[1]]
+  axis_length <- unlist(axis_length)
+
+  # Ellipsoid volume 2
+  #ellip_vol <- function(n,axis_length){
+  #  term1 <- pi^(n/2) / gamma(n/2+1)
+  #  term2 <- prod(axis_length)
+  #  return(term1*term2)
+  #}
+  n <- dim(vari)[1]
+
+  ellip_vol <- function(n,axis_length){
+    term1 <- 2* pi^(n/2)
+    term2 <- n*gamma(n/2)
+    term3 <- prod(axis_length)
+    term4 <- (term1/term2)*term3
+    return(term4)
+  }
+  vol2 <- ellip_vol(n,axis_length)
+
+  return(list(centroid=centroid,covariance=vari,
+              data=data,niche_volume =vol2,
+              axis_length=axis_length))
 
 }
