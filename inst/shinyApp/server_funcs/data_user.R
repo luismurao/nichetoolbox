@@ -133,7 +133,7 @@ observe({
            longitud_user <- names(data)[1])
     ifelse(test = !is.null(lat_user),
            latitud_user <- lat_user ,
-           latitud_gbif  <- names(data)[1])
+           latitud_user  <- names(data)[1])
 
     # Update select input for longitude
     updateSelectInput(session, 'xLongitudeUser',
@@ -149,9 +149,9 @@ observe({
                       selected = names(data))
 
   }
-  if(!is.null(selectYear())){
-    updateSelectInput(session,"GBIFYears",choices =selectYear())
-  }
+  #if(!is.null(selectYear())){
+  #  updateSelectInput(session,"GBIFYears",choices =selectYear())
+  #}
 
 })
 
