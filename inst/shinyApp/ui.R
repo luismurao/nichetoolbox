@@ -35,8 +35,12 @@ shinyUI(
                         tabPanel("Plot",corre_plot_1)
                         ),
              navbarMenu("ENM",
-                        tabPanel("Ellipsoids in G",ellipsoid_inter),
-                        tabPanel("Ellipsoids in E",ellipsoid_Graph)
+                        #tabPanel("Ellipsoids in G",ellipsoid_inter),
+                        #tabPanel("Ellipsoids in E",ellipsoid_Graph),
+                        tabPanel("Ellipsoids",ellipsoid_models),
+                        tabPanel("Bioclim",bioclim_ui),
+                        tabPanel("Model projection",ntb_models)
+
              )
   )
 )
