@@ -19,6 +19,7 @@ Depends:
     sp,
     raster,
     maptools,
+    dismo,
     MASS,
     animation,
     rgl,
