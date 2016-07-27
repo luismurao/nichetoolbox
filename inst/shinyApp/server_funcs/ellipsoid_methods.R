@@ -14,76 +14,50 @@ observe({
 # Fit the ellispoid model
 # ---------------------------------------------------------------------
 
-# Raster layers to project the minimum volume ellipsoid
-
-#data_ellip <- reactive({
-#  if(!is.null(rasterLayers()) && input$selectM=="wWorld")
-#    return(rasterLayers())
-#  if(!is.null(occ_extract_from_mask()) && input$selectM=="mLayers")
-#    return(occ_extract_from_mask())
-#  else
-#    return()
-#})
-
 # 1. Compute the minimum volume ellipsoid
 
-mve_obj_all <- reactive({
+
+mve_obj_all <- eventReactive(input$train_ellips,{
   if(!is.null(occ_extract()) && length(input$biosEllip)>1){
-    input$selectBios
-    isolate({
-      if(input$selectBios){
-        prop_points <- as.numeric(input$prop_points)
-        niche_data <- occ_extract()
-        cov_centroid <- cov_center(niche_data,
-                                   level=prop_points,
-                                   vars=input$biosEllip)
-        return(cov_centroid)
-      }
-    })
+    prop_points <- as.numeric(input$prop_points)
+    niche_data <- occ_extract()
+    cov_centroid <- cov_center(niche_data,
+                               level=prop_points,
+                               vars=input$biosEllip)
+    return(cov_centroid)
+
   }
   else
     return()
-
 })
-
-
-
-
-#mve_obj_m <- reactive({
-#  if(!is.null(occ_extract_from_mask()) && !is.null(input$biosEllip)){
-#    input$selectBios
-#    isolate({
-#      if(input$selectBios){
-#        prop_points <- as.numeric(input$prop_points)
-#        niche_data <- occ_extract_from_mask()
-#        cov_centroid <- cov_center(niche_data,
-#                                   level=prop_points,
-#                                   vars=input$biosEllip)
-#        return(cov_centroid)
-#      }
-#    })
-#  }
-#  else
-#    return()
-
-#})
-
 
 
 # 2. Fit and project the model All raster area
 
-ellip_model_all_rast <- reactive({
-  if(!is.null(mve_obj_all()) && !is.null(rasterLayers())){
-    input$selectBios
-    isolate({
-      if(input$selectBios){
+
+ellip_model_all_rast <- eventReactive(input$selectBios_all,{
+  if(!is.null(mve_obj_all()) && !is.null(rasterLayers()) && input$selectM == 'wWorld'){
+
         model <- ellipsoidfit(rasterLayers()[[input$biosEllip]],
                               mve_obj_all()$centroid,
                               mve_obj_all()$covariance,level = 0.95,
                               threshold = 0.001,plot = FALSE)
         return(model)
-      }
-    })
+  }
+  else
+    return()
+})
+
+
+ellip_model_m_rast <- eventReactive(input$selectBios_m,{
+  if(!is.null(mve_obj_all()) && !is.null(define_M_raster()) && input$selectM == 'mLayers'){
+
+    model <- ellipsoidfit(define_M_raster()[[input$biosEllip]],
+                          mve_obj_all()$centroid,
+                          mve_obj_all()$covariance,level = 0.95,
+                          threshold = 0.001,plot = FALSE)
+    return(model)
+
 
   }
   else
@@ -92,73 +66,22 @@ ellip_model_all_rast <- reactive({
 })
 
 
-ellip_model_m_rast <- reactive({
-  if(!is.null(mve_obj_all()) && !is.null(define_M_raster())){
-    input$selectBios
-    isolate({
-      if(input$selectBios){
-        model <- ellipsoidfit(define_M_raster()[[input$biosEllip]],
-                              mve_obj_all()$centroid,
-                              mve_obj_all()$covariance,level = 0.95,
-                              threshold = 0.001,plot = FALSE)
-        return(model)
-      }
-    })
+#ellip_model <- reactive({
+#  if(!is.null(ellip_model_all_rast()) && input$selectM=="wWorld")
+#    return(ellip_model_all_rast())
+#  if(!is.null(ellip_model_m_rast()) && input$selectM=="mLayers")
+#    return(ellip_model_m_rast())
+#  else
+#    return()
+#})
 
-  }
-  else
-    return()
-
-})
-
-
-ellip_model <- reactive({
-  if(!is.null(ellip_model_all_rast()) && input$selectM=="wWorld")
-    return(ellip_model_all_rast())
-  if(!is.null(ellip_model_m_rast()) && input$selectM=="mLayers")
-    return(ellip_model_m_rast())
-  else
-    return()
-})
-
-leaf_ellip <- reactive({
-
-  map <- leaflet() %>%
-    addTiles(
-      urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
-      attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
-    )
-
-  if(is.null(ellip_model()))
-    map <- map %>%  setView(lng = 0, lat = 0, zoom = 3)
-  else{
-    model <- ellip_model()$suitRaster
-    cbbPalette <- rev(terrain.colors(100))
-    pal <- colorNumeric(cbbPalette, values(model),
-                        na.color = "transparent")
-
-    crs(model) <- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
-    map <- map %>% addRasterImage(model, colors = pal, opacity = 0.5) %>%
-      addLegend(pal = pal, values = values(model),
-                position = "topleft",labFormat = labelFormat(),
-                title = "Suitability")
-
-  }
-  return(map)
-})
-
-
-
-output$ellip_map <- renderLeaflet({
-  return(leaf_ellip())
-})
 
 # Download ellipsoid plot
 output$EllipRasterPlot <- downloadHandler(
   filename <- "EllipsoidModelPlot.pdf",
   content <- function(file){
     pdf(file,width = 12,height = 8,pointsize = 18)
-    plot(ellip_model()$suitRaster)
+    plot(ellip_model_all_rast()$suitRaster)
     dev.off()
   }
 )
@@ -166,19 +89,31 @@ output$EllipRasterPlot <- downloadHandler(
 # Download Ellipsoid Raster
 
 output$downEllipRas <- downloadHandler(
-  filename <- "EllipsoidModelNTB.asc",
+  filename <- function() paste0("EllipsoidModelNTB",input$selectM,".asc"),
   content <- function(file){
-    writeRaster(ellip_model()$suitRaster,file)
+    if(!is.null(ellip_model_all_rast()) && input$selectM == "wWorld")
+      writeRaster(ellip_model_all_rast()$suitRaster,file)
+    if(!is.null(ellip_model_m_rast()) && input$selectM == "mLayers")
+      writeRaster(ellip_model_m_rast()$suitRaster,file)
   }
 )
 
 # Download Ellipsoid distances
 
 output$downEllipDistance <- downloadHandler(
-  filename <- "EllipsoidDistancesNTB.csv",
+  filename <- function() paste0("EllipsoidDistancesNTB",input$selectM,".csv"),
   content <- function(file){
-    ndistTable <- data.frame(ellip_model()$suits,ellip_model()$ncentedist)
-    write.csv(ndistTable,file,row.names = FALSE)
+    if(!is.null(ellip_model_all_rast()) && input$selectM == "wWorld"){
+      ndistTable <- data.frame(ellip_model_all_rast()$suits,
+                               ellip_model_all_rast()$ncentedist)
+      write.csv(ndistTable,file,row.names = FALSE)
+    }
+    if(!is.null(ellip_model_m_rast()) && input$selectM == "mLayers"){
+      ndistTable <- data.frame(ellip_model_m_rast()$suits,
+                                 ellip_model_m_rast()$ncentedist)
+      write.csv(ndistTable,file,row.names = FALSE)
+    }
+
   }
 )
 
@@ -242,10 +177,27 @@ ellipsoid_plot_3d <- function(suits,data,covar,centroid,level=0.95,xlab1="",ylab
 }
 
 
-plot_ellipsoid <- reactive({
-  if(!is.null(ellip_model())){
-    suits <- ellip_model()$suits[,"suitability"]
-    data <- ellip_model()$suits[,input$biosEllip]
+plot_ellipsoid_all <- reactive({
+  if(!is.null(ellip_model_all_rast())){
+    suits <- ellip_model_all_rast()$suits[,"suitability"]
+    data <- ellip_model_all_rast()$suits[,input$biosEllip]
+    covar <- mve_obj_all()$covariance
+    centroid <- mve_obj_all()$centroid
+    ellipsoid_plot_3d(suits = suits,
+                      data = data,covar = covar,
+                      centroid = centroid,
+                      xlab1 = input$biosEllip[1],
+                      ylab1 = input$biosEllip[2])
+  }
+  else
+    return()
+
+})
+
+plot_ellipsoid_m <- reactive({
+  if(!is.null(ellip_model_m_rast())){
+    suits <- ellip_model_m_rast()$suits[,"suitability"]
+    data <- ellip_model_m_rast()$suits[,input$biosEllip]
     covar <- mve_obj_all()$covariance
     centroid <- mve_obj_all()$centroid
     ellipsoid_plot_3d(suits = suits,
@@ -260,34 +212,60 @@ plot_ellipsoid <- reactive({
 })
 
 
-output$Ellip3D <- renderRglwidget({
+
+
+output$Ellip3D_all <- renderRglwidget({
   dim_d <- length(input$biosEllip)
-  if(!is.null(ellip_model()) && dim_d==3){
-    plot_ellipsoid()
-    rglwidget()
+  if(!is.null(plot_ellipsoid_all()) && dim_d==3){
+    plot_ellipsoid_all()
+
   }
-  else
-    return()
+  rglwidget()
+})
+
+output$Ellip3D_m <- renderRglwidget({
+  dim_d <- length(input$biosEllip)
+  if(!is.null(plot_ellipsoid_m()) && dim_d==3){
+    plot_ellipsoid_m()
+
+  }
+  rglwidget()
 })
 
 
-output$Ellip2D <- renderPlot({
+output$Ellip2D_all <- renderPlot({
   dim_d <- length(input$biosEllip)
-  if(!is.null(ellip_model()) && dim_d==2){
-    plot_ellipsoid()
+  if(!is.null(plot_ellipsoid_all()) && dim_d==2){
+    plot_ellipsoid_all()
   }
-  else
-    return()
+})
+
+
+output$Ellip2D_m <- renderPlot({
+  dim_d <- length(input$biosEllip)
+  if(!is.null(plot_ellipsoid_m()) && dim_d==2){
+    plot_ellipsoid_m()
+  }
 })
 
 # Normal Response curves
 
-response_ell <- reactive({
-  if(!is.null(ellip_model())){
+response_ell_all <- reactive({
+  if(!is.null(ellip_model_all_rast())){
     if(input$selectM=="wWorld"){
       multi.hist(occ_extract()[,input$biosEllip],
                  dcol= c("blue","red"),dlty=c("dotted", "solid"))
     }
+    else
+      return()
+  }
+
+})
+
+# Normal Response curves
+
+response_ell_m <- reactive({
+  if(!is.null(ellip_model_m_rast())){
     if(!is.null(occ_extract_from_mask()) && input$selectM=="mLayers" && !is.null(myPolygon())){
       multi.hist(occ_extract_from_mask()[,input$biosEllip],
                  dcol= c("blue","red"),dlty=c("dotted", "solid"))
@@ -299,9 +277,15 @@ response_ell <- reactive({
 })
 
 
-output$reponse_curves <- renderPlot({
-  if(!is.null(response_ell()))
-    response_ell()
+output$reponse_curves_all <- renderPlot({
+  if(!is.null(response_ell_all()))
+    response_ell_all()
+})
+
+
+output$reponse_curves_m <- renderPlot({
+  if(!is.null(response_ell_m()))
+    response_ell_m()
 })
 
 
@@ -313,15 +297,3 @@ output$downShapMat <- downloadHandler(
     capture.output(mve_obj_all(),file = file)
   }
 )
-#output$EllipRaster <- renderPlot({
-#  if(!is.null(ellip_model()))
-#    plot(ellip_model()$suitRaster)
-#  else{
-#    messages <- "Load niche layers | extract niche data"
-#    x <- -10:10
-#    y <- x
-#    plot(x,y,type="n", xlab="No Data", ylab="No data",cex=2)
-#    text(0,0,messages,cex=3 )
-#
-#  }
-#})
