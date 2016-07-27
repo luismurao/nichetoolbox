@@ -6,6 +6,9 @@ source("server_funcs/niche_space_visualizations.R",local = T)
 source("server_funcs/k_means_methods.R",local = T)
 source("server_funcs/correlation_methods.R",local = T)
 source("server_funcs/ellipsoid_methods.R",local = T)
+source("server_funcs/bioclim_methods.R",local = T)
+source("server_funcs/model_prejection_G.R",local = T)
+
 
 observeEvent(
   ignoreNULL = TRUE,
