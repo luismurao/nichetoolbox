@@ -28,13 +28,18 @@ observe({
 # 1. Compute the minimum volume ellipsoid
 
 mve_obj_all <- reactive({
-  if(!is.null(occ_extract()) && !is.null(input$biosEllip)){
-    prop_points <- as.numeric(input$prop_points)
-    niche_data <- occ_extract()
-    cov_centroid <- cov_center(niche_data,
-                               level=prop_points,
-                               vars=input$biosEllip)
-    return(cov_centroid)
+  if(!is.null(occ_extract()) && length(input$biosEllip)>1){
+    input$selectBios
+    isolate({
+      if(input$selectBios){
+        prop_points <- as.numeric(input$prop_points)
+        niche_data <- occ_extract()
+        cov_centroid <- cov_center(niche_data,
+                                   level=prop_points,
+                                   vars=input$biosEllip)
+        return(cov_centroid)
+      }
+    })
   }
   else
     return()
@@ -44,19 +49,25 @@ mve_obj_all <- reactive({
 
 
 
-mve_obj_m <- reactive({
-  if(!is.null(occ_extract_from_mask()) && !is.null(input$biosEllip)){
-    prop_points <- as.numeric(input$prop_points)
-    niche_data <- occ_extract_from_mask()
-    cov_centroid <- cov_center(niche_data,
-                               level=prop_points,
-                               vars=input$biosEllip)
-    return(cov_centroid)
-  }
-  else
-    return()
+#mve_obj_m <- reactive({
+#  if(!is.null(occ_extract_from_mask()) && !is.null(input$biosEllip)){
+#    input$selectBios
+#    isolate({
+#      if(input$selectBios){
+#        prop_points <- as.numeric(input$prop_points)
+#        niche_data <- occ_extract_from_mask()
+#        cov_centroid <- cov_center(niche_data,
+#                                   level=prop_points,
+#                                   vars=input$biosEllip)
+#        return(cov_centroid)
+#      }
+#    })
+#  }
+#  else
+#    return()
 
-})
+#})
+
 
 
 # 2. Fit and project the model All raster area
@@ -252,14 +263,8 @@ plot_ellipsoid <- reactive({
 output$Ellip3D <- renderRglwidget({
   dim_d <- length(input$biosEllip)
   if(!is.null(ellip_model()) && dim_d==3){
-    input$showEllipEnv
-
-    isolate({
-      if(input$showEllipEnv){
-        plot_ellipsoid()
-        rglwidget()
-      }
-    })
+    plot_ellipsoid()
+    rglwidget()
   }
   else
     return()
@@ -269,15 +274,34 @@ output$Ellip3D <- renderRglwidget({
 output$Ellip2D <- renderPlot({
   dim_d <- length(input$biosEllip)
   if(!is.null(ellip_model()) && dim_d==2){
-    input$showEllipEnv
-    isolate({
-      if(input$showEllipEnv){
-        plot_ellipsoid()
-      }
-    })
+    plot_ellipsoid()
   }
   else
     return()
+})
+
+# Normal Response curves
+
+response_ell <- reactive({
+  if(!is.null(ellip_model())){
+    if(input$selectM=="wWorld"){
+      multi.hist(occ_extract()[,input$biosEllip],
+                 dcol= c("blue","red"),dlty=c("dotted", "solid"))
+    }
+    if(!is.null(occ_extract_from_mask()) && input$selectM=="mLayers" && !is.null(myPolygon())){
+      multi.hist(occ_extract_from_mask()[,input$biosEllip],
+                 dcol= c("blue","red"),dlty=c("dotted", "solid"))
+    }
+    else
+      return()
+  }
+
+})
+
+
+output$reponse_curves <- renderPlot({
+  if(!is.null(response_ell()))
+    response_ell()
 })
 
 
