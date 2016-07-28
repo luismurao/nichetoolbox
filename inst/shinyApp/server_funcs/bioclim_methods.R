@@ -18,13 +18,18 @@ observe({
 
 bioclim_model_all <- eventReactive(input$run_bioclim_all,{
   if(!is.null(data_extraction())){
-    if(input$run_bioclim_all && !is.null(rasterLayers())){
-      model_train <- bioclim(data_extraction()[,input$biosBioclim])
+    if(!is.null(occ_extract()) && !is.null(input$biosBioclim) && input$trainBio == "wWorld"){
+      model_train <- bioclim(occ_extract()[,input$biosBioclim])
       model <- predict(rasterLayers()[[input$biosBioclim]], model_train)
       return(list(train=model_train,prediction=model))
-  }
-  else
-    return()
+    }
+    if(!is.null(occ_extract_from_mask()) && !is.null(input$biosBioclim) && input$selectShape == "mLayers"){
+      model_train <- bioclim(occ_extract_from_mask()[,input$biosBioclim])
+      model <- predict(rasterLayers()[[input$biosBioclim]], model_train)
+      return(list(train=model_train,prediction=model))
+    }
+    else
+      return()
   }
 })
 
@@ -36,15 +41,19 @@ bioclim_model_all <- eventReactive(input$run_bioclim_all,{
 
 bioclim_model_m <- eventReactive(input$run_bioclim_m,{
   if(!is.null(data_extraction())){
-    if(input$run_bioclim_m  && !is.null(define_M_raster())){
-      model_train <-  bioclim(data_extraction()[,input$biosBioclim])
+    if(!is.null(occ_extract_from_mask()) && !is.null(input$biosBioclim) && input$trainBio == "wWorld"){
+      model_train <- bioclim(occ_extract()[,input$biosBioclim])
       model <- predict(define_M_raster()[[input$biosBioclim]], model_train)
       return(list(train=model_train,prediction=model))
-
     }
+    if(!is.null(occ_extract_from_mask()) && !is.null(input$biosBioclim) && input$trainBio == "mLayers"){
+      model_train <- bioclim(occ_extract_from_mask()[,input$biosBioclim])
+      model <- predict(define_M_raster()[[input$biosBioclim]], model_train)
+      return(list(train=model_train,prediction=model))
+    }
+    else
+      return()
   }
-  else
-    return()
 })
 
 
@@ -60,11 +69,14 @@ output$bio_response_m <- renderPlot({
 })
 
 output$downBiclimRas <- downloadHandler(
-  filename <- "BioclimModelNTB.asc",
+  filename <- function() paste0("BioclimModelNTB_trainArea_",input$trainBio,"projected_area_",input$selectMBio,".asc"),
   content <- function(file){
-    if(!is.null(bioclim_model_all()) && input$selectMBio == "wWorld")
+    if(!is.null(bioclim_model_all()) && input$selectMBio == "wWorld"){
       writeRaster(bioclim_model_all()$prediction,file)
-    if(!is.null(bioclim_model_m()) && input$selectMBio == "mLayers")
+    }
+    else if(!is.null(bioclim_model_m()) && input$selectMBio == "mLayers"){
       writeRaster(bioclim_model_m()$prediction,file)
+    }
+
   }
 )

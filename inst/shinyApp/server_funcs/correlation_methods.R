@@ -3,17 +3,37 @@
 #---------------------------------------------------------------------------------
 # Correlation table
 
+observe({
+  cor_dataset <- NULL
+  if(!is.null(occ_extract()))
+    cor_dataset <- c(cor_dataset, "All raster extent"="wWorld")
+  if(!is.null(occ_extract_from_mask()))
+    cor_dataset <- c(cor_dataset,"Your shapefile of M"="mLayers")
+  updateSelectInput(session, inputId = "cor_data_from",choices = cor_dataset)
+})
+
 corr_table <- reactive({
   if(!is.null(data_extraction())){
-    niche_data <- data_extraction()
-    cor_table <- cor(niche_data,
-                     use = "pairwise.complete.obs")
-    return(cor_table)
+    if(!is.null(occ_extract()) && input$cor_data_from == "wWorld"){
+      niche_data <- occ_extract()
+      cor_table <- cor(niche_data,
+                       use = "pairwise.complete.obs")
+      return(cor_table)
+    }
+
+    if(!is.null(occ_extract_from_mask()) && input$cor_data_from == "mLayers"){
+      niche_data <- occ_extract_from_mask()$data
+      cor_table <- cor(niche_data,
+                       use = "pairwise.complete.obs")
+      return(cor_table)
+    }
+
+
+
   }
   else return(NULL)
 
 })
-
 
 
 output$corr_table <- renderDataTable({
