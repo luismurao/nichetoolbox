@@ -26,20 +26,21 @@ shinyUI(
                         tabPanel("Niche data extraction",define_M),
                         tabPanel("Known niche",niche_view)
                         ),
-             navbarMenu("Niche clustering",
-                        tabPanel("K-means",ui_kmeans)
-                        ),
+
              navbarMenu("Niche correlations",
                         tabPanel("Strong correlations",strong_corre),
                         tabPanel("Table",corre_table_1),
                         tabPanel("Plot",corre_plot_1)
                         ),
+             navbarMenu("Niche clustering",
+                        tabPanel("K-means",ui_kmeans)
+             ),
              navbarMenu("ENM",
                         #tabPanel("Ellipsoids in G",ellipsoid_inter),
                         #tabPanel("Ellipsoids in E",ellipsoid_Graph),
                         tabPanel("Ellipsoids",ellipsoid_models_c ),
-                        tabPanel("Bioclim",bioclim_ui),
-                        tabPanel("Model projection",ntb_models)
+                        tabPanel("Bioclim",bioclim_ui)
+                        #tabPanel("Model projection",ntb_models)
 
              )
   )
