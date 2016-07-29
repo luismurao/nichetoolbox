@@ -7,7 +7,8 @@ source("server_funcs/k_means_methods.R",local = T)
 source("server_funcs/correlation_methods.R",local = T)
 source("server_funcs/ellipsoid_methods.R",local = T)
 source("server_funcs/bioclim_methods.R",local = T)
-source("server_funcs/model_prejection_G.R",local = T)
+source("helpers/ellipsoid_3D_plot.R",local = T)
+#source("server_funcs/model_prejection_G.R",local = T)
 
 
 observeEvent(
@@ -351,7 +352,7 @@ observeEvent(input$saveState, {
            output_file = niche_data_report_save)
 
 
-  }
+
 
 
   # Save data extraction
@@ -385,7 +386,7 @@ observeEvent(input$saveState, {
 
   }
 
-
+}
 })
 
 
