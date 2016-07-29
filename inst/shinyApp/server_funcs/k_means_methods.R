@@ -1,35 +1,53 @@
 options(rgl.useNULL=TRUE)
-# Visualizations in niche space
+observe({
+  cor_dataset <- NULL
+  if(!is.null(occ_extract()))
+    cor_dataset <- c(cor_dataset, "All raster extent"="wWorld")
+  if(!is.null(occ_extract_from_mask()))
+    cor_dataset <- c(cor_dataset,"Your shapefile of M"="mLayers")
+  updateSelectInput(session, inputId = "kmeans_data_from",choices = cor_dataset)
+  if(!is.null(data_extraction())){
+    # Suggest variables to fit ellipsoid accoring to strog correlations
+    if(!is.null(summs_corr_var()))
+      var_suggest <- summs_corr_var()$descriptors
+    else
+      var_suggest <- NULL
+    updateSelectInput(session,"cluster_vars",
+                      choices = names(data_extraction()),selected = var_suggest)
+  }
+})
+
+
 
 # K-means clustering
 
 # K-means niche data input
 
 niche_data_k_means <- reactive({
-  if(!is.null(data_extraction()) && length(input$cluster_vars)>2){
-    if(input$load_kmeas_vars){
-      isolate({
-        return(data_extraction())
-      })
+  input$load_kmeas_vars
+  if(input$load_kmeas_vars){
+    if(!is.null(data_extraction()) && length(input$cluster_vars)>2){
+      if(input$kmeans_data_from == "wWorld")
+        return(occ_extract())
+      if(input$kmeans_data_from == "mLayers")
+        return(occ_extract_from_mask()$data)
     }
     else
       return(NULL)
   }
-  else
-    return(NULL)
 })
 
 
 # Geographic data
 
 geographic_data <- reactive({
-  if(input$datasetM == "gbif_dat" && !is.null(data_gbif()) && input$extracted_area == "all_area")
+  if(input$datasetM == "gbif_dat" && !is.null(data_gbif()) && input$kmeans_data_from == "wWorld")
     return(data_gbif())
-  if(input$datasetM == "updata" && !is.null(data_user_clean()) && input$extracted_area == "all_area")
+  if(input$datasetM == "updata" && !is.null(data_user_clean()) && input$kmeans_data_from == "wWorld")
     return(data_user_clean())
-  if(input$datasetM == "gbif_dat" && input$extracted_area == "polygon_of_M" && !is.null(occ_extract_from_mask()))
+  if(input$datasetM == "gbif_dat" && !is.null(occ_extract_from_mask()) && input$kmeans_data_from == "mLayers")
     return(data_gbif()[occ_extract_from_mask()$xy_data_index,])
-  if(input$datasetM == "updata" && input$extracted_area == "polygon_of_M" && !is.null(occ_extract_from_mask()))
+  if(input$datasetM == "updata"  && !is.null(occ_extract_from_mask()) && input$kmeans_data_from == "mLayers")
     return(data_user_clean()[occ_extract_from_mask()$xy_data_index,])
   else
     return(NULL)
@@ -44,7 +62,7 @@ kmeans_df <- reactive({
     nclus <- as.numeric(input$nclust)
     km <- kmeans(niche_data,centers=nclus,iter.max=100,trace=F)
     cluster <- km$cluster
-    if(input$extracted_area == "polygon_of_M")
+    if(input$kmeans_data_from == "mLayers")
       geo_dat <- occ_extract_from_mask()$xy_data
     else
       geo_dat <- data_to_extract()
@@ -67,7 +85,7 @@ kmeans_3d_plot_data <- reactive({
       cluster_ids <- cluster_ids[not_dup_niche_space]
       dat_clus <-  niche_data[not_dup_niche_space,c(input$x1,input$y1,input$z1)]
       vgrupo <-  geographic_data()[,input$vgrupo]
-      if(input$extracted_area == "polygon_of_M")
+      if(input$kmeans_data_from == "mLayers")
         lat_long <- data_to_extract()[occ_extract_from_mask()$xy_data_index,]
       else
         lat_long <- data_to_extract()
@@ -163,14 +181,7 @@ output$kmeans_geo_leaflet <- renderLeaflet({
   }
 })
 
-observe({
-  if(!is.null(data_extraction())){
-    updateSelectInput(session,"cluster_vars",
-                      choices = names(data_extraction()),
-                      selected = names(data_extraction()))
-  }
 
-})
 observe({
 
   if(!is.null(data_extraction())){

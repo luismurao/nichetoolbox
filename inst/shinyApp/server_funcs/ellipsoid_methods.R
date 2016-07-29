@@ -8,22 +8,46 @@ observe({
     updateSelectInput(session,"biosEllip",
                       choices = names(data_extraction()),selected = var_suggest)
   }
+  niche_tain <- NULL
+  if(!is.null(occ_extract()))
+    niche_tain <- c(niche_tain,"All raster extent"="wWorld")
+  if(!is.null(occ_extract_from_mask()))
+    niche_tain <- c(niche_tain,"Your shapefile of M"="mLayers")
+  updateSelectInput(session, "selectShape",choices = niche_tain)
 })
 
 # ---------------------------------------------------------------------
-# Fit the ellispoid model
+# Fit the ellispoid model All raster area
 # ---------------------------------------------------------------------
 
-# 1. Compute the minimum volume ellipsoid
+# 1. Compute the minimum volume ellipsoid all Raster area
 
 
-mve_obj_all <- eventReactive(input$train_ellips,{
-  if(!is.null(occ_extract()) && length(input$biosEllip)>1){
+mve_obj_all <- reactive({
+  if(!is.null(occ_extract()) && !is.null(input$biosEllip) && input$selectShape == "wWorld"){
     prop_points <- as.numeric(input$prop_points)
     niche_data <- occ_extract()
     cov_centroid <- cov_center(niche_data,
                                level=prop_points,
                                vars=input$biosEllip)
+
+    return(cov_centroid)
+
+  }
+  else
+    return()
+})
+
+# 1' Compute the minimum volume ellipsoid M Raster area
+
+mve_obj_m <- reactive({
+  if(!is.null(occ_extract_from_mask()) && !is.null(input$biosEllip) && input$selectShape == "mLayers"){
+    prop_points <- as.numeric(input$prop_points)
+    niche_data <- occ_extract_from_mask()$data
+    cov_centroid <- cov_center(niche_data,
+                               level=prop_points,
+                               vars=input$biosEllip)
+
     return(cov_centroid)
 
   }
@@ -32,157 +56,62 @@ mve_obj_all <- eventReactive(input$train_ellips,{
 })
 
 
-# 2. Fit and project the model All raster area
+# Choose the minimum volume ellipsoid (all or M raster area)
 
-
-ellip_model_all_rast <- eventReactive(input$selectBios_all,{
-  if(!is.null(mve_obj_all()) && !is.null(rasterLayers()) && input$selectM == 'wWorld'){
-
-        model <- ellipsoidfit(rasterLayers()[[input$biosEllip]],
-                              mve_obj_all()$centroid,
-                              mve_obj_all()$covariance,level = 0.95,
-                              threshold = 0.001,plot = FALSE)
-        return(model)
-  }
+mve_obj <- reactive({
+  if(!is.null(mve_obj_all()) && input$selectShape == "wWorld")
+    return(mve_obj_all())
+  if(!is.null(mve_obj_m()) && input$selectShape == "mLayers")
+    return(mve_obj_m())
   else
     return()
 })
 
+# 2. Fit and project the model All raster area and trained in All raster area
 
-ellip_model_m_rast <- eventReactive(input$selectBios_m,{
-  if(!is.null(mve_obj_all()) && !is.null(define_M_raster()) && input$selectM == 'mLayers'){
 
-    model <- ellipsoidfit(define_M_raster()[[input$biosEllip]],
-                          mve_obj_all()$centroid,
-                          mve_obj_all()$covariance,level = 0.95,
+ellip_model_all_rast_all_train <- eventReactive(input$selectBios_all,{
+  cov_centroid <- mve_obj_all()
+  if(!is.null(rasterLayers()) && input$selectM == 'wWorld' && !is.null(cov_centroid) && input$selectShape == "wWorld"){
+
+    model <- ellipsoidfit(rasterLayers()[[input$biosEllip]],
+                          cov_centroid$centroid,
+                          cov_centroid$covariance,level = 0.95,
                           threshold = 0.001,plot = FALSE)
+
+
     return(model)
-
-
   }
   else
     return()
-
 })
 
 
-#ellip_model <- reactive({
-#  if(!is.null(ellip_model_all_rast()) && input$selectM=="wWorld")
-#    return(ellip_model_all_rast())
-#  if(!is.null(ellip_model_m_rast()) && input$selectM=="mLayers")
-#    return(ellip_model_m_rast())
-#  else
-#    return()
-#})
+ellip_model_all_rast_m_train <- eventReactive(input$selectBios_all,{
+  cov_centroid <- mve_obj_m()
+  if(!is.null(rasterLayers()) && input$selectM == 'wWorld' && !is.null(cov_centroid) && input$selectShape == "mLayers"){
+
+    model <- ellipsoidfit(rasterLayers()[[input$biosEllip]],
+                          cov_centroid$centroid,
+                          cov_centroid$covariance,level = 0.95,
+                          threshold = 0.001,plot = FALSE)
 
 
-# Download ellipsoid plot
-output$EllipRasterPlot <- downloadHandler(
-  filename <- "EllipsoidModelPlot.pdf",
-  content <- function(file){
-    pdf(file,width = 12,height = 8,pointsize = 18)
-    plot(ellip_model_all_rast()$suitRaster)
-    dev.off()
+    return(model)
   }
-)
+  else
+    return()
+})
 
-# Download Ellipsoid Raster
 
-output$downEllipRas <- downloadHandler(
-  filename <- function() paste0("EllipsoidModelNTB",input$selectM,".asc"),
-  content <- function(file){
-    if(!is.null(ellip_model_all_rast()) && input$selectM == "wWorld")
-      writeRaster(ellip_model_all_rast()$suitRaster,file)
-    if(!is.null(ellip_model_m_rast()) && input$selectM == "mLayers")
-      writeRaster(ellip_model_m_rast()$suitRaster,file)
-  }
-)
-
-# Download Ellipsoid distances
-
-output$downEllipDistance <- downloadHandler(
-  filename <- function() paste0("EllipsoidDistancesNTB",input$selectM,".csv"),
-  content <- function(file){
-    if(!is.null(ellip_model_all_rast()) && input$selectM == "wWorld"){
-      ndistTable <- data.frame(ellip_model_all_rast()$suits,
-                               ellip_model_all_rast()$ncentedist)
-      write.csv(ndistTable,file,row.names = FALSE)
-    }
-    if(!is.null(ellip_model_m_rast()) && input$selectM == "mLayers"){
-      ndistTable <- data.frame(ellip_model_m_rast()$suits,
-                                 ellip_model_m_rast()$ncentedist)
-      write.csv(ndistTable,file,row.names = FALSE)
-    }
-
-  }
-)
-
-ellipsoid_plot_3d <- function(suits,data,covar,centroid,level=0.95,xlab1="",ylab1="",zlab1="Suitability"){
-  dim_data <- dim(data)[2]
-  if(dim_data == 3){
-    data1 <- data[!is.na(suits), ]
-    dfd <- dim(data1)[1] - 1
-    dfn <- dim(data1)[2] - 1
-    ell.radius_E <- sqrt(dfn * qf(level, dfn, dfd))
-    suits2 <- suits[!is.na(suits)]
-    ellips_E <- ellipsoid(center = centroid, shape = covar,
-                          radius = ell.radius_E)
-    if (dfd > 50000)
-      np <- 50000
-    else np <- dim(data1)[1]
-    toSam <- sample(1:length(data1[, 1]), np)
-    data1 <- data1[toSam, ]
-    plot3d(data1, size = 3, col = hsv(suits2[toSam] *
-                                           0.71, 0.95, 0.9))
-    wire3d(ellips_E, col = 4, lit = FALSE, alpha = 0.1)
-  }
-  if(dim_data == 2){
-
-    x <- seq(from = centroid[1]/1.5, to = centroid[1] * 1.25,
-             length = 60)
-    y <- seq(from = centroid[2]/1.5, to = centroid[2] * 1.25,
-             length = 60)
-    suit <- function(data,medias,covMatrix){
-      a <- 1
-      expo <- exp(-0.5*mahalanobis(data,medias,cov = covMatrix))
-      return(a*expo)
-    }
-    suit1 <- function(x, y) suit(cbind(x, y), medias = centroid,
-                                 covMatrix = covar)
-    z <- outer(x, y, suit1)
-
-    p1 <- persp(x, y, z, box = T, xlab = xlab1, ylab = ylab1,
-                zlab = "", col = "blue", theta = 55, phi = 30, r = 40,
-                d = 0.1, expand = 0.5, ticktype = "detailed", nticks = 5,
-                cex.lab = 1.5, cex.axis = 1.3, cex.main = 1.5, cex.sub = 1.5)
-    ranges <- t(sapply(list(x, y, z), range))
-    means <- rowMeans(ranges)
-    labelspace <- 0.12
-    xpos <- min(x) - (diff(range(x))) * labelspace
-    ypos <- min(y) - (diff(range(y))) * labelspace
-    labelbot3d <- c(xpos, ypos, min(z))
-    labeltop3d <- c(xpos, ypos, max(z))
-    labelmid3d <- c(xpos, ypos, mean(range(z)))
-    trans3dfun <- function(v) {
-      trans3d(v[1], v[2], v[3], p1)
-    }
-    labelbot2d <- trans3dfun(labelbot3d)
-    labelmid2d <- trans3dfun(labelmid3d)
-    labeltop2d <- trans3dfun(labeltop3d)
-    labelang <- 180/pi * atan2(labeltop2d$y - labelbot2d$y,
-                               labeltop2d$x - labelbot2d$x)
-    par(xpd = NA, srt = labelang)
-    text(labelmid2d[1]$x, labelmid2d$y, zlab1, cex = 1.5)
-  }
-}
-
+# Plot the model in Enverionmental Space (All raster area)
 
 plot_ellipsoid_all <- reactive({
-  if(!is.null(ellip_model_all_rast())){
+  if(!is.null(ellip_model_all_rast()) && input$selectM == 'wWorld'){
     suits <- ellip_model_all_rast()$suits[,"suitability"]
     data <- ellip_model_all_rast()$suits[,input$biosEllip]
-    covar <- mve_obj_all()$covariance
-    centroid <- mve_obj_all()$centroid
+    covar <- mve_obj()$covariance
+    centroid <- mve_obj()$centroid
     ellipsoid_plot_3d(suits = suits,
                       data = data,covar = covar,
                       centroid = centroid,
@@ -194,34 +123,89 @@ plot_ellipsoid_all <- reactive({
 
 })
 
-plot_ellipsoid_m <- reactive({
-  if(!is.null(ellip_model_m_rast())){
-    suits <- ellip_model_m_rast()$suits[,"suitability"]
-    data <- ellip_model_m_rast()$suits[,input$biosEllip]
-    covar <- mve_obj_all()$covariance
-    centroid <- mve_obj_all()$centroid
-    ellipsoid_plot_3d(suits = suits,
-                      data = data,covar = covar,
-                      centroid = centroid,
-                      xlab1 = input$biosEllip[1],
-                      ylab1 = input$biosEllip[2])
-  }
-  else
-    return()
-
-})
-
-
-
+# Plot the model in Enverionmental Space (All raster area)
 
 output$Ellip3D_all <- renderRglwidget({
   dim_d <- length(input$biosEllip)
   if(!is.null(plot_ellipsoid_all()) && dim_d==3){
     plot_ellipsoid_all()
-
   }
   rglwidget()
 })
+
+output$Ellip2D_all <- renderPlot({
+  dim_d <- length(input$biosEllip)
+  if(!is.null(plot_ellipsoid_all()) && dim_d==2){
+    plot_ellipsoid_all()
+  }
+})
+
+
+# Normal Response curves
+
+response_ell_all <- reactive({
+  if(!is.null(ellip_model_all_rast())){
+    if(input$selectM=="wWorld" && input$selectShape == "wWorld"){
+      multi.hist(occ_extract()[,input$biosEllip],
+                 dcol= c("blue","red"),dlty=c("dotted", "solid"))
+    }
+    if(input$selectM=="wWorld" && input$selectShape == "mLayers"){
+      multi.hist(occ_extract_from_mask()$data[,input$biosEllip],
+                 dcol= c("blue","red"),dlty=c("dotted", "solid"))
+    }
+    else
+      return()
+  }
+
+})
+
+# ---------------------------------------------------------------------
+# Fit the ellispoid model M area
+# ---------------------------------------------------------------------
+
+ellip_model_m_rast <- eventReactive(input$selectBios_m,{
+  cov_centroid <- mve_obj()
+  if(!is.null(cov_centroid) && !is.null(define_M_raster()) && input$selectM == 'mLayers'){
+
+    model <- ellipsoidfit(define_M_raster()[[input$biosEllip]],
+                          cov_centroid$centroid,
+                          cov_centroid$covariance,level = 0.95,
+                          threshold = 0.001,plot = FALSE)
+    return(model)
+  }
+  else
+    return()
+
+})
+
+
+
+# Plot the model in Enverionmental Space (M raster area)
+
+plot_ellipsoid_m <- reactive({
+  if(!is.null(ellip_model_m_rast()) && input$selectM == 'mLayers'){
+    suits <- ellip_model_m_rast()$suits[,"suitability"]
+    data <- ellip_model_m_rast()$suits[,input$biosEllip]
+    covar <- mve_obj()$covariance
+    centroid <- mve_obj()$centroid
+    ellipsoid_plot_3d(suits = suits,
+                      data = data,covar = covar,
+                      centroid = centroid,
+                      xlab1 = input$biosEllip[1],
+                      ylab1 = input$biosEllip[2])
+  }
+  else
+    return()
+
+})
+
+output$reponse_curves_all <- renderPlot({
+  if(!is.null(response_ell_all()))
+    response_ell_all()
+})
+
+
+# Plot the model in Enverionmental Space (M raster area)
 
 output$Ellip3D_m <- renderRglwidget({
   dim_d <- length(input$biosEllip)
@@ -233,12 +217,6 @@ output$Ellip3D_m <- renderRglwidget({
 })
 
 
-output$Ellip2D_all <- renderPlot({
-  dim_d <- length(input$biosEllip)
-  if(!is.null(plot_ellipsoid_all()) && dim_d==2){
-    plot_ellipsoid_all()
-  }
-})
 
 
 output$Ellip2D_m <- renderPlot({
@@ -248,26 +226,16 @@ output$Ellip2D_m <- renderPlot({
   }
 })
 
-# Normal Response curves
 
-response_ell_all <- reactive({
-  if(!is.null(ellip_model_all_rast())){
-    if(input$selectM=="wWorld"){
-      multi.hist(occ_extract()[,input$biosEllip],
-                 dcol= c("blue","red"),dlty=c("dotted", "solid"))
-    }
-    else
-      return()
-  }
-
-})
-
-# Normal Response curves
 
 response_ell_m <- reactive({
-  if(!is.null(ellip_model_m_rast())){
-    if(!is.null(occ_extract_from_mask()) && input$selectM=="mLayers" && !is.null(myPolygon())){
-      multi.hist(occ_extract_from_mask()[,input$biosEllip],
+  if(!is.null(ellip_model_all_m())){
+    if(input$selectM=="mLayers" && selectShape == "mLayers"){
+      multi.hist(occ_extract_from_mask()$data[,input$biosEllip],
+                 dcol= c("blue","red"),dlty=c("dotted", "solid"))
+    }
+    if(input$selectM=="mLayers" && selectShape == "wWorld"){
+      multi.hist(occ_extract()$data[,input$biosEllip],
                  dcol= c("blue","red"),dlty=c("dotted", "solid"))
     }
     else
@@ -275,13 +243,6 @@ response_ell_m <- reactive({
   }
 
 })
-
-
-output$reponse_curves_all <- renderPlot({
-  if(!is.null(response_ell_all()))
-    response_ell_all()
-})
-
 
 output$reponse_curves_m <- renderPlot({
   if(!is.null(response_ell_m()))
@@ -289,11 +250,59 @@ output$reponse_curves_m <- renderPlot({
 })
 
 
+
+# Download Ellipsoid Raster
+
+output$downEllipRas <- downloadHandler(
+  filename <- function() {paste0("EllipsoidModelNTB",
+                                input$selectM,"_var_matrix_",
+                                input$selectShape,".asc")},
+  content <- function(file){
+    if(!is.null(ellip_model_all_rast()) && input$selectM == "wWorld"){
+      writeRaster(ellip_model_all_rast()$suitRaster,file)
+    }
+
+    else if(!is.null(ellip_model_m_rast()) && input$selectM == "mLayers"){
+      writeRaster(ellip_model_m_rast()$suitRaster,file)
+    }
+
+  }
+)
+
+
+
+# Download Ellipsoid distances
+
+output$downEllipDistance <- downloadHandler(
+  filename <- function() {paste0("EllipsoidDistancesNTB",input$selectM,"_var_matrix_",
+                                input$selectShape,".csv")},
+  content <- function(file){
+    if(!is.null(ellip_model_all_rast()) && input$selectM == "wWorld"){
+      ndistTable <- data.frame(ellip_model_all_rast()$suits,
+                               ellip_model_all_rast()$ncentedist)
+      write.csv(ndistTable,file,row.names = FALSE)
+    }
+    else if(!is.null(ellip_model_m_rast()) && input$selectM == "mLayers"){
+      ndistTable <- data.frame(ellip_model_m_rast()$suits,
+                               ellip_model_m_rast()$ncentedist)
+      write.csv(ndistTable,file,row.names = FALSE)
+    }
+
+  }
+)
+
+
 # Download meta data
 
 output$downShapMat <- downloadHandler(
-  filename <- "EllipsoidMetaData.txt",
+  filename <- function() {paste0("EllipsoidMetaData_",
+                                input$selectM,"_","_var_matrix_",
+                                input$selectShape,".txt")},
   content <- function(file){
-    capture.output(mve_obj_all(),file = file)
+    if(input$selectM=="wWorld")
+      capture.output(mve_obj_all(),file = file)
+    else if(input$selectM=="mLayers")
+      capture.output(mve_obj_m(),file = file)
   }
 )
+
