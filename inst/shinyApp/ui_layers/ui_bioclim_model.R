@@ -8,7 +8,9 @@ bioclim_ui <- sidebarLayout(position = "left",
                                 titlePanel("NicheToolBox"),
                                 h3("Bioclim"),
                                 busyIndicator("Computation In progress",wait = 0),
-                                selectInput("selectMBio","Select a region to run the model",
+                                selectInput("trainBio","Select a region to train the model",
+                                            choices = c("All raster extent"="wWorld","Your shapefile of M"="mLayers")),
+                                selectInput("selectMBio","Select a region to project the model",
                                             choices = c("All raster extent"="wWorld","Your shapefile of M"="mLayers")),
                                 selectInput(inputId = "biosBioclim","Select the variables",choices = NULL,multiple = TRUE),
                                 conditionalPanel("input.selectMBio == 'wWorld'",
@@ -16,7 +18,9 @@ bioclim_ui <- sidebarLayout(position = "left",
                                                  ),
                                 conditionalPanel("input.selectMBio == 'mLayers'",
                                                  actionButton("run_bioclim_m",label = "Run Bioclim")
-                                )
+                                ),
+                                h5("Download your model in .asc"),
+                                downloadButton(outputId = "downBiclimRas",label = "Download model")
 
                               ),
                               mainPanel(

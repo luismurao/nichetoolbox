@@ -7,6 +7,7 @@ ui_kmeans <- sidebarLayout(position = "left",
                                 titlePanel("Niche ToolBox"),
                                 helpText("In development: The main objective of this function is to see if there are
                                          groups in the niche. The groups could be reflecting local adaptations..."),
+                                selectInput("kmeans_data_from",label = "Select a data set",choices = NULL),
                                 selectInput("cluster_vars","Select at least 3 niche variables",choices = layer_names_kmeans,multiple = TRUE),
                                 numericInput("Suggest a number of clusters",inputId = "nclust",value = 3,min = 2,max=100),
                                 numericInput("kmeans_level", "Select a conffidence level",value = 0.95,min = 0.5,max=0.99),
@@ -30,7 +31,6 @@ ui_kmeans <- sidebarLayout(position = "left",
                                 #downloadButton("down3dClust",label = "Download plot")),
                                 ),
                               mainPanel(
-                                rglwidgetOutput("kmeans_clust_3d",width = "800px",height = "800px"),
-                                #plotOutput("kmeans_geo")
-                                leafletOutput(outputId = "kmeans_geo_leaflet")
+                                leafletOutput(outputId = "kmeans_geo_leaflet"),
+                                rglwidgetOutput("kmeans_clust_3d",width = "800px",height = "800px")
                               ))

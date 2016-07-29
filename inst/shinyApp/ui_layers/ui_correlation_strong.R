@@ -6,6 +6,7 @@ strong_corre <- sidebarLayout(position = "left",
                                 titlePanel("NicheToolBox"),
                                 helpText("Showing correlations acoording to a threshold given by the user.
                                  Bivariate correlations may help to detect which variables are redundant."),
+                                selectInput("cor_data_from",label = "Select a data set",choices = NULL),
                                 numericInput(inputId = "cor_threshold",
                                              label = "Correlation threshold",
                                              value = 0.85,  min=0.5, max=1,step=0.05),
