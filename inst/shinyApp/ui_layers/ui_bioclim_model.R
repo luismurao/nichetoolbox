@@ -24,6 +24,12 @@ bioclim_ui <- sidebarLayout(position = "left",
 
                               ),
                               mainPanel(
-                                conditionalPanel("input.selectMBio == 'wWorld'",plotOutput("bio_response_all")),
-                                conditionalPanel("input.selectMBio == 'mLayers'",plotOutput("bio_response_m"))
+                                conditionalPanel("input.selectMBio == 'wWorld' && input.trainBio == 'wWorld'",
+                                                 plotOutput("bio_response_all_all_train")),
+                                conditionalPanel("input.selectMBio == 'wWorld' && input.trainBio == 'mLayers'",
+                                                 plotOutput("bio_response_all_m_train")),
+                                conditionalPanel("input.selectMBio == 'mLayers' && input.trainBio == 'wWorld'",
+                                                 plotOutput("bio_response_m_all_train")),
+                                conditionalPanel("input.selectMBio == 'mLayers' && input.trainBio == 'mLayers'",
+                                                 plotOutput("bio_response_m_m_train"))
                               ))
