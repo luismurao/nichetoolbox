@@ -173,15 +173,15 @@ observe({
 
 
 
-output$showMapGo <- renderUI({
-  if(input$proj_model1 == "Ellipsoid_all_extent_shape_W"){
-    return(actionButton("showGo_all_extent_shape_W","Go !!"))
-  }
-  if(input$proj_model1 == "Ellipsoid_all_extent_shape_M"){
-    return(actionButton("showGo_all_extent_shape_M","Go !!"))
-  }
+#output$showMapGo <- renderUI({
+#  if(input$proj_model1 == "Ellipsoid_all_extent_shape_W"){
+#    return(actionButton("showGo_all_extent_shape_W","Go !!"))
+#  }
+#  if(input$proj_model1 == "Ellipsoid_all_extent_shape_M"){
+#    return(actionButton("showGo_all_extent_shape_M","Go !!"))
+#  }
 
-})
+#})
 
 leaf_ellip_all_all_train <- reactive({
 
