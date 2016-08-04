@@ -4,8 +4,8 @@ ntb_models <-  div(class="outer",
 
                    tags$head(
                      # Include our custom CSS
-                     includeCSS("ui_layers/style/styles.css")#,
-                     #includeScript("gomap.js")
+                     includeCSS("ui_layers/style/styles.css"),
+                     includeScript("ui_layers/style/gomap.js")
                    ),
 
                    #plotOutput("EllipRaster",width = "1000px",height = "600px"),
@@ -18,6 +18,9 @@ ntb_models <-  div(class="outer",
                                  h2("NicheToolBox"),
                                  h4("ENModels projections\n in G"),
                                  busyIndicator("Computation In progress",wait = 0),
-                                 selectInput("proj_model","Select model",choices = NULL,multiple = FALSE)
+
+                                 selectInput("proj_model1",label = "Select model",choices = NULL)
+                                 #uiOutput("showMapGo")
+
                    )
 )

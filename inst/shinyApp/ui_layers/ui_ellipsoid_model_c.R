@@ -6,10 +6,10 @@ ellipsoid_models_c <- sidebarLayout(position = "left",
                               h3("Ellipsoid Model"),
                               busyIndicator("Computation In progress",wait = 0),
                               selectInput("selectShape","Select a region to train the model",
-                                          choices = c("All raster extent"="wWorld","Your shapefile of M"="mLayers")),
+                                          choices =NULL),
 
                               selectInput("selectM","Select a region to project the ellipsoid",
-                                          choices = c("All raster extent"="wWorld","Your shapefile of M"="mLayers")),
+                                          choices = NULL),
                               selectInput(inputId = "biosEllip","Select the variables",choices = NULL,multiple = TRUE),
                               numericInput("prop_points",
                                            "Proportion of niche points inside the ellipsoid",
@@ -17,11 +17,17 @@ ellipsoid_models_c <- sidebarLayout(position = "left",
                               #h5("Train the model"),
                               #shiny::actionButton("train_ellips",label = "Train model"),
                               h5("Run your model"),
-                              conditionalPanel("input.selectM=='wWorld'",
-                                               shiny::actionButton("selectBios_all",label = "Run model")
+                              conditionalPanel("input.selectM == 'wWorld' && input.selectShape == 'wWorld'",
+                                               shiny::actionButton("selectBios_all_all_train",label = "Run model 1")
                               ),
-                              conditionalPanel("input.selectM=='mLayers'",
-                                               shiny::actionButton("selectBios_m",label = "Run model")
+                              conditionalPanel("input.selectM=='wWorld' && input.selectShape== 'mLayers'",
+                                               shiny::actionButton("selectBios_all_m_train",label = "Run model 2")
+                              ),
+                              conditionalPanel("input.selectM=='mLayers' && input.selectShape == 'wWorld'",
+                                               shiny::actionButton("selectBios_m_all_train",label = "Run model 3")
+                              ),
+                              conditionalPanel("input.selectM=='mLayers' && input.selectShape == 'mLayers'",
+                                               shiny::actionButton("selectBios_m_m_train",label = "Run model 4")
                               ),
 
                               busyIndicator("Computation In progress",wait = 0),
@@ -36,48 +42,5 @@ ellipsoid_models_c <- sidebarLayout(position = "left",
 
                             ),
                             mainPanel(
-                              conditionalPanel("input.biosEllip.length == 3 && input.selectM == 'wWorld' && input.selectShape=='wWorld'",
-                                               rglwidgetOutput("Ellip3D_all_all_train",
-                                                               width =  "650px",
-                                                               height  = "650px")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 3 && input.selectM == 'wWorld' && input.selectShape=='mLayers'",
-                                               rglwidgetOutput("Ellip3D_all_m_train",
-                                                               width =  "650px",
-                                                               height  = "650px")
-                              ),
-                              conditionalPanel("input.biosEllip.length > 3 && input.selectM == 'wWorld' && input.selectShape=='wWorld'",
-                                               plotOutput("reponse_curves_all_all_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length > 3 && input.selectM == 'wWorld' && input.selectShape=='mLayers'",
-                                               plotOutput("reponse_curves_all_m_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 3 && input.selectM == 'mLayers' && input.selectShape=='wWorld'",
-                                               rglwidgetOutput("Ellip3D_m_all_train",
-                                                               width =  "650px",
-                                                               height  = "650px")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 3 && input.selectM == 'mLayers' && input.selectShape=='mLayers'",
-                                               rglwidgetOutput("Ellip3D_m_m_train",
-                                                               width =  "650px",
-                                                               height  = "650px")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 2 && input.selectM == 'wWorld' && input.selectShape=='wWorld'",
-                                               plotOutput("Ellip2D_all_all_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 2 && input.selectM == 'wWorld' && input.selectShape=='mLayers'",
-                                               plotOutput("Ellip2D_all_m_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 2 && input.selectM == 'mLayers' && input.selectShape=='wWorld'",
-                                               plotOutput("Ellip2D_m_all_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length == 2 && input.selectM == 'mLayers' && input.selectShape=='mLayers'",
-                                               plotOutput("Ellip2D_m_m_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length > 3 && input.selectM == 'mLayers' && input.selectShape=='wWorld'",
-                                               plotOutput("reponse_curves_m_all_train")
-                              ),
-                              conditionalPanel("input.biosEllip.length > 3 && input.selectM == 'mLayers' && input.selectShape=='mLayers'",
-                                               plotOutput("reponse_curves_m_m_train")
-                              )
+                              uiOutput("ellip_models_plots")
                             ))
