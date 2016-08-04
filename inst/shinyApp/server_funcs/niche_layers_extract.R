@@ -41,7 +41,7 @@ occ_extract_from_mask <- reactive({
         return(NULL)
     }
   })
-
+  return(NULL)
 })
 
 occ_extract <- reactive({
@@ -58,7 +58,7 @@ occ_extract <- reactive({
         return(NULL)
     }
   })
-
+  return(NULL)
 })
 
 data_extraction <- reactive({
