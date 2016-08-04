@@ -39,8 +39,8 @@ shinyUI(
                         #tabPanel("Ellipsoids in G",ellipsoid_inter),
                         #tabPanel("Ellipsoids in E",ellipsoid_Graph),
                         tabPanel("Ellipsoids",ellipsoid_models_c ),
-                        tabPanel("Bioclim",bioclim_ui)
-                        #tabPanel("Model projection",ntb_models)
+                        tabPanel("Bioclim",bioclim_ui),
+                        tabPanel("Model projection",ntb_models)
 
              )
   )
