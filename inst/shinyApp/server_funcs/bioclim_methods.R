@@ -38,7 +38,7 @@ output$bio_response_all_all_train <- renderPlot({
 bioclim_model_all_m_train <- eventReactive(input$run_bioclim_all,{
   if(!is.null(data_extraction())){
     if(!is.null(occ_extract_from_mask()) && input$selectMBio == "wWorld" && input$trainBio == "mLayers"){
-      model_train <- bioclim(occ_extract_from_mask()[,input$biosBioclim])
+      model_train <- bioclim(occ_extract_from_mask()$data[,input$biosBioclim])
       model <- predict(rasterLayers()[[input$biosBioclim]], model_train)
       return(list(train=model_train,prediction=model))
     }
@@ -61,7 +61,7 @@ output$bio_response_all_m_train <- renderPlot({
 
 bioclim_model_m_all_train <- eventReactive(input$run_bioclim_m,{
   if(!is.null(data_extraction())){
-    if(!is.null(occ_extract_from_mask()) && input$selectMBio == "mLayers" && input$trainBio == "wWorld"){
+    if(!is.null(occ_extract()) && input$selectMBio == "mLayers" && input$trainBio == "wWorld"){
       model_train <- bioclim(occ_extract()[,input$biosBioclim])
       model <- predict(define_M_raster()[[input$biosBioclim]], model_train)
       return(list(train=model_train,prediction=model))
@@ -76,7 +76,7 @@ bioclim_model_m_all_train <- eventReactive(input$run_bioclim_m,{
 bioclim_model_m_m_train <- eventReactive(input$run_bioclim_m,{
   if(!is.null(data_extraction())){
     if(!is.null(occ_extract_from_mask()) && input$selectMBio == "mLayers" && input$trainBio == "mLayers"){
-      model_train <- bioclim(occ_extract_from_mask()[,input$biosBioclim])
+      model_train <- bioclim(occ_extract_from_mask()$data[,input$biosBioclim])
       model <- predict(define_M_raster()[[input$biosBioclim]], model_train)
       return(list(train=model_train,prediction=model))
     }

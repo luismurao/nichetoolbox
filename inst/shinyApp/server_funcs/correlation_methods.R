@@ -8,7 +8,7 @@ observe({
   if(!is.null(occ_extract()))
     cor_dataset <- c(cor_dataset, "All raster extent"="wWorld")
   if(!is.null(occ_extract_from_mask()))
-    cor_dataset <- c(cor_dataset,"Your shapefile of M"="mLayers")
+    cor_dataset <- c(cor_dataset,"Your polygon of M"="mLayers")
   updateSelectInput(session, inputId = "cor_data_from",choices = cor_dataset)
 })
 
@@ -146,10 +146,10 @@ print_corfinder <- function(descriptors,list_cor,threshold){
 }
 
 summs_corr_var<- reactive({
-
+  print("corriendo")
   if(!is.null(corr_table())){
     cor_mat <- corr_table()
-
+    print("corriendo dentro de if")
     cor_vars  <- correlation_finder(cor_mat = cor_mat,
                                     threshold = input$cor_threshold,
                                     verbose = input$verbose_cor)
@@ -168,7 +168,7 @@ summs_corr_var<- reactive({
     return(NULL)
 })
 
-output$big_cor <- renderPrint({
+output$big_cor <- renderText({
   if(!is.null(corr_table())){
     return(summs_corr_var()$cor_vars)
   }
