@@ -7,9 +7,10 @@ source("server_funcs/k_means_methods.R",local = T)
 source("server_funcs/correlation_methods.R",local = T)
 source("server_funcs/bioclim_methods.R",local = T)
 source("helpers/ellipsoid_3D_plot.R",local = T)
+source("helpers/pROC.R",local = T)
 source("server_funcs/ellipsoid_methods.R",local = T)
 source("server_funcs/model_proj_methods.R",local = T)
-
+source("server_funcs/partial_roc_methods.R",local = T)
 
 observeEvent(
   ignoreNULL = TRUE,

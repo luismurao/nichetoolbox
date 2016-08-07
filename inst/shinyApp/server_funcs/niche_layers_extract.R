@@ -34,8 +34,10 @@ occ_extract_from_mask <- reactive({
                                    data_to_extract(),na.rm=FALSE))
         xy_data_index <- which(!is.na(data[,1]))
         xy_data <- data_to_extract()[xy_data_index,]
+        data_env_xy  <- data.frame(data, data_to_extract())
+        data_env_xy <- na.omit(data_env_xy)
         data <- na.omit(data)
-        return(list(data=data,xy_data=xy_data,xy_data_index=xy_data_index))
+        return(list(data=data,xy_data=xy_data,xy_data_index=xy_data_index,data_env_xy=data_env_xy))
       }
       else
         return(NULL)
@@ -49,6 +51,9 @@ occ_extract <- reactive({
   isolate({
     if(input$run_extract){
       if(!is.null(data_to_extract()) && !is.null(rasterLayers())){
+        #data <- data.frame(extract(rasterLayers(),
+        #                           data_to_extract(),na.rm=FALSE),
+        #                   data_to_extract())
         data <- data.frame(extract(rasterLayers(),
                                    data_to_extract()))
         data <- na.omit(data)
@@ -60,6 +65,9 @@ occ_extract <- reactive({
   })
   return(NULL)
 })
+
+
+
 
 data_extraction <- reactive({
   if(input$extracted_area == "all_area" && !is.null(occ_extract()))
