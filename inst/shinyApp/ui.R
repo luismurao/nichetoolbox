@@ -43,6 +43,7 @@ shinyUI(
                         tabPanel("Model projection",ntb_models)
              ),
              navbarMenu("SDM performance",
-                        tabPanel("Partial ROC",partial_roc))
+                        tabPanel("Partial ROC",partial_roc),
+                        tabPanel("Binary maps",ui_binary))
   )
 )
