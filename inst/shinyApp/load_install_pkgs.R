@@ -19,6 +19,7 @@ if(length(pkgs_ntb_miss)>0L){
 }
 library(ENMGadgets)
 library(shinysky)
+library(leaflet)
 # Load packages
 options(rgl.useNULL=TRUE)
 #sapply(pkgs_ntb,function(x) library(x,character.only = TRUE))
