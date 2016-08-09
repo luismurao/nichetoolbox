@@ -128,10 +128,10 @@ observe({
     lat_user <- grep(pattern = "[Ll][Aa][Tt]",
                      x = names(data),value=TRUE)[1]
 
-    ifelse(test = !is.null(lon_user),
+    ifelse(test = !is.na(lon_user),
            longitud_user <- lon_user ,
            longitud_user <- names(data)[1])
-    ifelse(test = !is.null(lat_user),
+    ifelse(test = !is.na(lat_user),
            latitud_user <- lat_user ,
            latitud_user  <- names(data)[1])
 
@@ -145,8 +145,7 @@ observe({
                       selected = latitud_user)
     # Update select input for User grouping variable
     updateSelectInput(session, 'groupUser',
-                      choices = names(data),
-                      selected = names(data))
+                      choices = names(data))
 
   }
   #if(!is.null(selectYear())){
@@ -159,9 +158,9 @@ observe({
 # Observer for updating the levels of the grouping variable
 
 observe({
-  df_user <- data_user_clean()
+  df_user <- data_user()
   if (!is.null(df_user)) {
-    if(input$groupUser != "Upload your data"){
+    if(input$groupUser != "Upload your data" && input$groupUser %in% names(df_user)){
       niveles <- levels(as.factor(df_user[,input$groupUser]))
       updateSelectInput(session, 'groupLevelsUser', choices =niveles)
     }

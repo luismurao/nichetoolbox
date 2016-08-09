@@ -146,10 +146,10 @@ print_corfinder <- function(descriptors,list_cor,threshold){
 }
 
 summs_corr_var<- reactive({
-  print("corriendo")
+
   if(!is.null(corr_table())){
     cor_mat <- corr_table()
-    print("corriendo dentro de if")
+
     cor_vars  <- correlation_finder(cor_mat = cor_mat,
                                     threshold = input$cor_threshold,
                                     verbose = input$verbose_cor)
@@ -168,9 +168,12 @@ summs_corr_var<- reactive({
     return(NULL)
 })
 
-output$big_cor <- renderText({
+output$big_cor <- renderPrint({
   if(!is.null(corr_table())){
-    return(summs_corr_var()$cor_vars)
+    cor_mat <- corr_table()
+    return(correlation_finder(cor_mat = cor_mat,
+                              threshold = input$cor_threshold,
+                              verbose = input$verbose_cor))
   }
   else{
     cat("No niche data: extract niche values from layers!
@@ -182,8 +185,12 @@ output$big_cor <- renderText({
 output$download_stcor <- downloadHandler(
   filename = "strongcors.txt",
   content = function(file) {
-    if(!is.null(summs_corr_var()))
-      capture.output(summs_corr_var()$cor_vars_summary,file = file)
+    if(!is.null(summs_corr_var())){
+      cor_mat <- corr_table()
+      capture.output(correlation_finder(cor_mat = cor_mat,
+                                threshold = input$cor_threshold,
+                                verbose = input$verbose_cor),file=file)
+    }
   }
 )
 

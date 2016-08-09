@@ -368,7 +368,7 @@ observe({
 observe({
   df_gbif_search <- data_gbif_search()
   if (is.data.frame(df_gbif_search)) {
-    if(input$groupGBIF != "Search for a species"){
+    if(input$groupGBIF != "Search for a species" && input$groupGBIF %in% df_gbif_search){
       niveles <- levels(as.factor(df_gbif_search[,input$groupGBIF]))
       updateSelectInput(session, 'groupLevelsGBIF', choices =niveles)
     }
