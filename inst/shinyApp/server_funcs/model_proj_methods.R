@@ -111,6 +111,18 @@ models_bio_m_m_train <-reactive({
   }
 })
 
+models_maxent_all_all <- reactive({
+  mod9 <- maxent_model_user_all()
+  if(!is.null(mod9)){
+    models_in_ntb <- c("MaxEnt all extent projec Trained all extent"
+                       = "maxent_all_extent_shape_all")
+    return(models_in_ntb)
+
+  } else{
+    return()
+  }
+})
+
 
 models <- reactiveValues()
 observe({
@@ -162,8 +174,13 @@ observe({
 })
 
 observe({
+  if(!is.null(models_maxent_all_all()))
+    models$i <- models_maxent_all_all()
+})
+
+observe({
   models_in_ntb <- reactiveValuesToList(models)
-  models_in_ntb <- unlist(models_in_ntb)
+  models_in_ntb <- unlist(unname(models_in_ntb))
   if(!is.null(models_in_ntb)){
     updateSelectInput(session,inputId = "proj_model1",
                       label = "Select Model",choices = models_in_ntb)
@@ -420,6 +437,36 @@ leaf_bio_m_m_train <- reactive({
   return(map)
 })
 
+
+leaf_max_all_all_train <- reactive({
+
+  map <- leaflet() %>%
+    addTiles(
+      urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
+      attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+    )
+
+  if(input$proj_model1 == "maxent_all_extent_shape_all" && !is.null(maxent_model_user_all())){
+
+    model <- maxent_model_user_all()$model
+    cbbPalette <- rev(terrain.colors(100))
+    pal <- colorNumeric(cbbPalette, values(model),
+                        na.color = "transparent")
+
+    crs(model) <- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
+    map <- map %>% addRasterImage(model, colors = pal, opacity = 0.5) %>%
+      addLegend(pal = pal, values = values(model),
+                position = "topleft",labFormat = labelFormat(),
+                title = "Suitability")
+  }
+
+  else{
+    map <- map %>%  setView(lng = 0, lat = 0, zoom = 3)
+
+  }
+  return(map)
+})
+
 to_plot_model <- reactive({
   if(input$proj_model1 == "Ellipsoid_all_extent_shape_W"){
     return(leaf_ellip_all_all_train())
@@ -444,6 +491,9 @@ to_plot_model <- reactive({
   }
   else if(input$proj_model1 == "Bioclim_m_extent_shape_M"){
     return(leaf_bio_m_m_train())
+  }
+  else if(input$proj_model1 =="maxent_all_extent_shape_all"){
+    return(leaf_max_all_all_train())
   }
   else{
     map <- leaflet() %>%
