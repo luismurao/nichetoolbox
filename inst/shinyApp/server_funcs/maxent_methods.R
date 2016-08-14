@@ -141,6 +141,7 @@ maxent_args <- reactive({
 })
 
 maxent_model_user_all <- eventReactive(input$run_maxent_user_all,{
+  Sys.setenv(NOAWT=TRUE)
 
   if(!is.null(data_maxent_user_all()) && !is.null(input$biosMaxEnt)){
     occ <- data_maxent_user_all()
@@ -153,7 +154,7 @@ maxent_model_user_all <- eventReactive(input$run_maxent_user_all,{
     print(max_dir_files)
     max_dir_plots <- paste0(max_dir_files,"plots/")
 
-    model <- predict(me, predictors)
+    model <- predict(me, predictors,args=maxent_args())
     return(list(model=model,html=me@html,max_dir_files=max_dir_files,max_dir_plots=max_dir_plots))
   }
   else
@@ -206,6 +207,18 @@ max_tex_user_all <- reactive({
 
 })
 
+
+output$max_model_user_all <- downloadHandler(
+  filename = function() paste0("max_model_",
+                               input$selectDataMaxEnt,
+                               input$selectM_MaxEnt,"_",
+                               input$maxent_output,".asc"),
+  content = function(file){
+    if(!is.null(maxent_model_user_all())){
+      writeRaster(maxent_model_user_all()$model,file)
+    }
+  }
+)
 
 
 output$maxent_html_user_all <- renderUI({

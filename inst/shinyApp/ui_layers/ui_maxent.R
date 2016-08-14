@@ -34,7 +34,9 @@ ui_maxent  <- sidebarLayout(position = "left",
                                                                                      "Raw"="raw")),
 
                                 conditionalPanel("input.selectDataMaxEnt== 'user_data' && input.selectM_MaxEnt == 'all_raster'",
-                                                 actionButton("run_maxent_user_all","Run")),
+                                                 actionButton("run_maxent_user_all","Run"),
+                                                 downloadButton("max_model_user_all","Model")),
+
                                 conditionalPanel("input.selectDataMaxEnt== 'user_data' && input.selectM_MaxEnt == 'mLayers'",
                                                  actionButton("run_maxent_user_mLayers","Run"))
 
