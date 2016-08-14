@@ -40,6 +40,7 @@ shinyUI(
                         #tabPanel("Ellipsoids in E",ellipsoid_Graph),
                         tabPanel("Ellipsoids",ellipsoid_models_c ),
                         tabPanel("Bioclim",bioclim_ui),
+                        tabPanel("MaxEnt",ui_maxent),
                         tabPanel("Model projection",ntb_models)
              ),
              navbarMenu("SDM performance",
