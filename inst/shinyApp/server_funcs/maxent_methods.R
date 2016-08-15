@@ -51,7 +51,7 @@ observe({
 
 observe({
 
-  var_suggest <- NULL
+  var_suggest <- names(rasterLayers())
   if(!is.null(summs_corr_var()) && input$cor_data_from== "wWorld")
     var_suggest <- summs_corr_var()$descriptors
   if(!is.null(summs_corr_var()) && input$cor_data_from== "mLayers")
