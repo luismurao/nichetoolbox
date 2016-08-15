@@ -4,7 +4,7 @@ observe({
     if(!is.null(summs_corr_var()))
       var_suggest <- summs_corr_var()$descriptors
     else
-      var_suggest <- NULL
+      var_suggest <- names(data_extraction())
     updateSelectInput(session,"biosBioclim",
                       choices = names(data_extraction()),selected = var_suggest)
   }
