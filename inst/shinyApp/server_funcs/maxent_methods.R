@@ -92,6 +92,19 @@ data_maxent_gbif <- reactive({
     return()
 })
 
+# Read user uploaded data
+
+max_test_file <- reactive({
+
+  if (is.null(input$max_testing_file))
+    return(NULL)
+  else if (identical(input$max_format_test, 'CSV')){
+    print(input$max_testing_file$datapath)
+    return(input$max_testing_file$datapath)
+  }
+
+})
+
 maxent_args <- reactive({
   args <- c("autorun=TRUE", "visible=FALSE", "warnings=FALSE", "tooltips=FALSE", "askoverwrite=FALSE", "skipifexists=FALSE",
             "prefixes=TRUE", "verbose=FALSE", "pictures=TRUE", "writeclampgrid=TRUE",
@@ -104,38 +117,38 @@ maxent_args <- reactive({
             #paste('randomseed=',randomseed,sep=''),
             paste0("responsecurves=",input$max_responsecurves),
             paste0("outputformat=",input$maxent_output),
-            paste('logscale=',input$max_logscale,sep=''),
+            paste0('logscale=',input$max_logscale),
             paste0("jackknife=",input$max_jackknife),
-            #paste('removeduplicates=',removeduplicates,sep=''),
-            #paste('randomtestpoints=',randomtestpoints,sep=''),
-            #paste('betamultiplier=',betamultiplier,sep=''),
-            #paste('maximumbackground=',maximumbackground,sep=''),
-            #paste('biasfile=',biasfile,sep=''),
-            #paste('testsamplesfile=',testsamplesfile,sep=''),
-            #paste('replicates=',replicates,sep=''),
-            #paste('replicatetype=',replicatetype,sep=''),
-            paste('linear=',input$max_linear,sep=''),
-            paste('quadratic=',input$max_quadratic,sep=''),
-            paste('product=',input$max_product,sep=''),
-            paste('threshold=',input$max_threshold,sep=''),
-            paste('hinge=',input$max_hinge,sep='')
-            #paste('addsamplestobackground=',addsamplestobackground,sep=''),
-            #paste('addallsamplestobackground=',addallsamplestobackground,sep=''),
-            #paste('fadebyclamping=',fadebyclamping,sep=''),
-            #paste('extrapolate=',extrapolate,sep=''),
-            #paste('autofeature=',autofeature,sep=''),
-            #paste('doclamp=',doclamp,sep=''),
-            #paste('maximumiterations=',maximumiterations,sep=''),
-            #paste('convergencethreshold=',convergencethreshold,sep=''),
-            #paste('lq2lqptthreshold=',lq2lqptthreshold,sep=''),
-            #paste('l2lqthreshold=',l2lqthreshold,sep=''),
-            #paste('hingethreshold=',hingethreshold,sep=''),
-            #paste('beta_threshold=',beta_threshold,sep=''),
-            #paste('beta_categorical=',beta_categorical,sep=''),
-            #paste('beta_lqp=',beta_lqp,sep=''),
-            #paste('beta_hinge=',beta_hinge,sep=''),
-            #paste('defaultprevalence=',defaultprevalence,sep=''),
-            #paste('nodata=',nodata,sep='')
+            paste0('removeduplicates=',input$max_remv_dup),
+            paste0('randomtestpoints=',input$max_rand_test_per),
+            paste0('betamultiplier=',input$max_beta_multiplier),
+            paste0('maximumbackground=',input$max_nbg),
+            paste0('replicates=',input$max_repli_numer),
+            paste0('replicatetype=',input$max_repli_type),
+            #paste0('biasfile=',biasfile),
+            #paste0('testsamplesfile=',max_test_file()),
+            paste0('linear=',input$max_linear),
+            paste0('quadratic=',input$max_quadratic),
+            paste0('product=',input$max_product),
+            paste0('threshold=',input$max_threshold),
+            paste0('hinge=',input$max_hinge),
+            paste0('addsamplestobackground=',input$max_add_samp_to_bg),
+            paste0('addallsamplestobackground=',input$max_add_all_samp_to_bg),
+            #paste0('fadebyclamping=',fadebyclamping),
+            paste0('extrapolate=',input$max_extrapolate),
+            #paste0('autofeature=',autofeature),
+            #paste0('doclamp=',doclamp),
+            paste0('maximumiterations=',input$max_num_iterations),
+            paste0('convergencethreshold=',input$max_threshold_conv),
+            paste0('defaultprevalence=',input$max_prevalence),
+            paste0('lq2lqptthreshold=',input$max_lq2lqptthreshold),
+            paste0('l2lqthreshold=',input$max_l2lqthreshold),
+            paste0('hingethreshold=',input$max_hingethreshold),
+            paste0('beta_threshold=',input$max_beta_threshold),
+            paste0('beta_categorical=',input$max_beta_categorical),
+            paste0('beta_lqp=',input$max_beta_lqp),
+            paste0('beta_hinge=',input$max_beta_hinge)
+            #paste0('nodata=',input$max_no_data)
             )
   return(args)
 })
@@ -165,7 +178,7 @@ maxent_model_user_all <- eventReactive(input$run_maxent_user_all,{
 max_tex_user_all <- reactive({
   if(!is.null(maxent_model_user_all())){
     HTML( paste0(h3("Maxent model")),
-          paste0(p("Output created on",date())),
+          paste0(p("Output created on",date())),paste0(downloadLink("max_results_user_all",label = h5("Download complete results"))),
           paste0( h4("Analysis of omission/commission")),
           paste0(p("The following picture shows the omission rate and predicted area as a function of the cumulative threshold.
                   The omission rate is is calculated both on the training presence records, and (if test data are used) on the test records.
@@ -196,9 +209,9 @@ max_tex_user_all <- reactive({
                     variable contributions should be interpreted with caution when the predictor variables are correlated.")),
           paste0(dataTableOutput("varcontri_tb_user_all")),
           #paste0(h4("Jackknife plot")),
-          paste0(plotOutput("maxent_jackknife_user_all")),
+          paste0(plotOutput("maxent_jackknife_user_all"))
           #paste0(h4("Download complete results")),
-          paste0(downloadLink("max_results_user_all",label = h5("Download complete results")))
+
 
     )
   }
