@@ -112,10 +112,10 @@ models_bio_m_m_train <-reactive({
 })
 
 models_maxent_all_all <- reactive({
-  mod9 <- maxent_model_user_all()
+  mod9 <- maxent_model_all_all()
   if(!is.null(mod9)){
-    models_in_ntb <- c("MaxEnt all extent projec Trained all extent"
-                       = "maxent_all_extent_shape_all")
+    models_in_ntb <- c("maxent_all_extent_shape_all")
+    names(models_in_ntb) <- paste0("MaxEnt all extent data ", input$selectDataMaxEnt)
     return(models_in_ntb)
 
   } else{
@@ -123,6 +123,18 @@ models_maxent_all_all <- reactive({
   }
 })
 
+models_maxent_all_m <- reactive({
+  mod10 <- maxent_model_all_M()
+  if(!is.null(mod10)){
+    models_in_ntb <- c("maxent_all_extent_shape_M")
+    names(models_in_ntb) <- paste0("MaxEnt M extent data ", input$selectDataMaxEnt)
+
+    return(models_in_ntb)
+
+  } else{
+    return()
+  }
+})
 
 models <- reactiveValues()
 observe({
@@ -176,6 +188,11 @@ observe({
 observe({
   if(!is.null(models_maxent_all_all()))
     models$i <- models_maxent_all_all()
+})
+
+observe({
+  if(!is.null(models_maxent_all_m()))
+    models$j <- models_maxent_all_m()
 })
 
 observe({
@@ -446,9 +463,40 @@ leaf_max_all_all_train <- reactive({
       attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
     )
 
-  if(input$proj_model1 == "maxent_all_extent_shape_all" && !is.null(maxent_model_user_all())){
+  if(input$proj_model1 == "maxent_all_extent_shape_all" && !is.null(maxent_model_all_all())){
 
-    model <- maxent_model_user_all()$model
+    model <- maxent_model_all_all()$model
+    cbbPalette <- rev(terrain.colors(100))
+    pal <- colorNumeric(cbbPalette, values(model),
+                        na.color = "transparent")
+
+    crs(model) <- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs"
+    map <- map %>% addRasterImage(model, colors = pal, opacity = 0.5) %>%
+      addLegend(pal = pal, values = values(model),
+                position = "topleft",labFormat = labelFormat(),
+                title = "Suitability")
+  }
+
+  else{
+    map <- map %>%  setView(lng = 0, lat = 0, zoom = 3)
+
+  }
+  return(map)
+})
+
+
+
+leaf_max_all_m_train <- reactive({
+
+  map <- leaflet() %>%
+    addTiles(
+      urlTemplate = "//{s}.tiles.mapbox.com/v3/jcheng.map-5ebohr46/{z}/{x}/{y}.png",
+      attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>'
+    )
+
+  if(input$proj_model1 == "maxent_all_extent_shape_M" && !is.null(maxent_model_all_M())){
+
+    model <- maxent_model_all_M()$model
     cbbPalette <- rev(terrain.colors(100))
     pal <- colorNumeric(cbbPalette, values(model),
                         na.color = "transparent")
@@ -494,6 +542,9 @@ to_plot_model <- reactive({
   }
   else if(input$proj_model1 =="maxent_all_extent_shape_all"){
     return(leaf_max_all_all_train())
+  }
+  else if(input$proj_model1 =="maxent_all_extent_shape_M"){
+    return(leaf_max_all_m_train())
   }
   else{
     map <- leaflet() %>%

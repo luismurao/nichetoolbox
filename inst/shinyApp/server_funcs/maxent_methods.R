@@ -6,7 +6,7 @@ layers_in_ntb1 <- reactiveValues()
 
 observe({
   if(!is.null(data_gbif()))
-    data_in_nt1b$gbif <- c("GBIF data"="gbif_data")
+    data_in_ntb1$gbif <- c("GBIF data"="gbif_data")
 })
 
 observe({
@@ -14,15 +14,15 @@ observe({
     data_in_ntb1$user <- c("User data"="user_data")
 })
 
-observe({
-  if(!is.null(data_poly())){
+#observe({
+#  if(!is.null(data_poly())){
 
-    m_data <- c("m_data")
-    names(m_data) <- paste0("M data ","(",input$dataset_dynMap,")")
-    data_in_ntb1$M_data <- m_data
-  }
+#    m_data <- c("m_data")
+#    names(m_data) <- paste0("M data ","(",input$dataset_dynMap,")")
+#    data_in_ntb1$M_data <- m_data
+#  }
 
-})
+#})
 
 observe({
   data_in_ntb1 <- unlist(unname(reactiveValuesToList(data_in_ntb1)))
@@ -86,11 +86,21 @@ data_maxent_user_all <- reactive({
 })
 
 data_maxent_gbif <- reactive({
-  if(input$selectDataMaxEnt == "gbif_dat" && !is.null(data_gbif()))
+  if(input$selectDataMaxEnt == "gbif_data" && !is.null(data_gbif()))
     return(data_gbif()[,c(input$xLongitudeGBIF,input$yLatitudeGBIF)])
   else
     return()
 })
+
+data_maxent_all <- reactive({
+  if(!is.null(data_maxent_user_all()) && input$selectDataMaxEnt == "user_data")
+    return(data_maxent_user_all())
+  if(!is.null(data_maxent_gbif()) && input$selectDataMaxEnt == "gbif_data")
+    return(data_maxent_gbif())
+})
+
+
+
 
 # Read user uploaded data
 
@@ -153,14 +163,14 @@ maxent_args <- reactive({
   return(args)
 })
 
-maxent_model_user_all <- eventReactive(input$run_maxent_user_all,{
+maxent_model_all_all <- eventReactive(input$run_maxent_all_all,{
   Sys.setenv(NOAWT=TRUE)
 
-  if(!is.null(data_maxent_user_all()) && !is.null(input$biosMaxEnt)){
-    occ <- data_maxent_user_all()
-    fold <- kfold(occ, k=5)
-    occtest <- occ[fold == 1, ]
-    occtrain <- occ[fold != 1, ]
+  if(!is.null(data_maxent_all()) && !is.null(input$biosMaxEnt)){
+    occtrain <- data_maxent_all()
+    #fold <- kfold(occ, k=5)
+    #occtest <- occ[fold == 1, ]
+    #occtrain <- occ[fold != 1, ]
     predictors <- rasterLayers()[[input$biosMaxEnt]]
     me <- maxent(predictors, occtrain,args=maxent_args())
     max_dir_files <- gsub(x = me@html,"maxent.html",replacement = "")
@@ -175,29 +185,29 @@ maxent_model_user_all <- eventReactive(input$run_maxent_user_all,{
 
 })
 
-max_tex_user_all <- reactive({
-  if(!is.null(maxent_model_user_all())){
+max_tex_all_all <- reactive({
+  if(!is.null(maxent_model_all_all())){
     HTML( paste0(h3("Maxent model")),
-          paste0(p("Output created on",date())),paste0(downloadLink("max_results_user_all",label = h5("Download complete results"))),
+          paste0(p("Output created on",date())),paste0(downloadLink("max_results_all_all",label = h5("Download complete results"))),
           paste0( h4("Analysis of omission/commission")),
           paste0(p("The following picture shows the omission rate and predicted area as a function of the cumulative threshold.
                   The omission rate is is calculated both on the training presence records, and (if test data are used) on the test records.
                   The omission rate should be close to the predicted omission, because of the definition of the cumulative threshold. ")),
-          paste0(plotOutput("maxent_omission_user_all")),
+          paste0(plotOutput("maxent_omission_all_all")),
           paste0(p("The next picture is the receiver operating characteristic (ROC) curve for the same data.
                    Note that the specificity is defined using predicted area, rather than true commission
                    (see the paper by Phillips, Anderson and Schapire cited on the help page for discussion
                    of what this means). This implies that the maximum achievable AUC is less than 1.
                    If test data is drawn from the Maxent distribution itself, then the maximum possible test
                    AUC would be 0.959 rather than 1; in practice the test AUC may exceed this bound. ")),
-          paste0(plotOutput("maxent_roc_user_all")),
+          paste0(plotOutput("maxent_roc_all_all")),
           paste0(p("Some common thresholds and corresponding omission rates are as follows. If test data
                    are available, binomial probabilities are calculated exactly if the number of test samples
                    is at most 25, otherwise using a normal approximation to the binomial. These are 1-sided
                    p-values for the null hypothesis that test points are predicted no better than by a random
                    prediction with the same fractional predicted area. The 'Balance' threshold minimizes 6 *
                    training omission rate + .04 * cumulative threshold + 1.6 * fractional predicted area.")),
-          paste0(dataTableOutput("threshold_tb_user_all")),
+          paste0(dataTableOutput("threshold_tb_all_all")),
           paste0(h4("Analysis of variable contributions")),
           paste0(p("The following table gives estimates of relative contributions of the environmental variables
                     to the Maxent model. To determine the first estimate, in each iteration of the training algorithm,
@@ -207,9 +217,9 @@ max_tex_user_all <- reactive({
                     data are randomly permuted. The model is reevaluated on the permuted data, and the resulting drop
                     in training AUC is shown in the table, normalized to percentages. As with the variable jackknife,
                     variable contributions should be interpreted with caution when the predictor variables are correlated.")),
-          paste0(dataTableOutput("varcontri_tb_user_all")),
+          paste0(dataTableOutput("varcontri_tb_all_all")),
           #paste0(h4("Jackknife plot")),
-          paste0(plotOutput("maxent_jackknife_user_all"))
+          paste0(plotOutput("maxent_jackknife_all_all"))
           #paste0(h4("Download complete results")),
 
 
@@ -221,27 +231,27 @@ max_tex_user_all <- reactive({
 })
 
 
-output$max_model_user_all <- downloadHandler(
+output$max_model_all_all <- downloadHandler(
   filename = function() paste0("max_model_",
                                input$selectDataMaxEnt,
                                input$selectM_MaxEnt,"_",
                                input$maxent_output,".asc"),
   content = function(file){
-    if(!is.null(maxent_model_user_all())){
-      writeRaster(maxent_model_user_all()$model,file)
+    if(!is.null(maxent_model_all_all())){
+      writeRaster(maxent_model_all_all()$model,file)
     }
   }
 )
 
 
-output$maxent_html_user_all <- renderUI({
-  max_tex_user_all()
+output$maxent_html_all_all <- renderUI({
+  max_tex_all_all()
 })
 
 
-maxent_jackknife_user_all <- reactive({
-  if(!is.null(maxent_model_user_all()) && input$max_jackknife){
-    plot_dir <- maxent_model_user_all()$max_dir_plots
+maxent_jackknife_all_all <- reactive({
+  if(!is.null(maxent_model_all_all()) && input$max_jackknife){
+    plot_dir <- maxent_model_all_all()$max_dir_plots
     jacknife <- paste0(plot_dir,"/","species_jacknife.png")
     jacknife_plot <- readPNG(jacknife)
     plot(c(0,1.4),c(0,1), type='n', xaxt='n', yaxt='n', ann=FALSE)
@@ -253,15 +263,15 @@ maxent_jackknife_user_all <- reactive({
     return()
 })
 
-output$maxent_jackknife_user_all <- renderPlot({
-  if(!is.null(maxent_jackknife_user_all()))
-    maxent_jackknife_user_all()
+output$maxent_jackknife_all_all <- renderPlot({
+  if(!is.null(maxent_jackknife_all_all()))
+    maxent_jackknife_all_all()
 })
 
 
-maxent_omission_user_all <- reactive({
-  if(!is.null(maxent_model_user_all())){
-    plot_dir <- maxent_model_user_all()$max_dir_plots
+maxent_omission_all_all <- reactive({
+  if(!is.null(maxent_model_all_all())){
+    plot_dir <- maxent_model_all_all()$max_dir_plots
     omission <- paste0(plot_dir,"/","species_omission.png")
     omission_plot <- readPNG(omission)
     plot(c(0,1.4),c(0,1), type='n', xaxt='n', yaxt='n', ann=FALSE)
@@ -273,14 +283,14 @@ maxent_omission_user_all <- reactive({
     return()
 })
 
-output$maxent_omission_user_all <- renderPlot({
-  if(!is.null(maxent_omission_user_all()))
-    maxent_omission_user_all()
+output$maxent_omission_all_all <- renderPlot({
+  if(!is.null(maxent_omission_all_all()))
+    maxent_omission_all_all()
 })
 
-maxent_roc_user_all <- reactive({
-  if(!is.null(maxent_model_user_all())){
-    plot_dir <- maxent_model_user_all()$max_dir_plots
+maxent_roc_all_all <- reactive({
+  if(!is.null(maxent_model_all_all())){
+    plot_dir <- maxent_model_all_all()$max_dir_plots
     roc <- paste0(plot_dir,"/","species_roc.png")
     roc_plot <- readPNG(roc)
     plot(c(0,1.4),c(0,1), type='n', xaxt='n', yaxt='n', ann=FALSE)
@@ -290,14 +300,14 @@ maxent_roc_user_all <- reactive({
   else
     return()
 })
-output$maxent_roc_user_all <- renderPlot({
-  if(!is.null(maxent_roc_user_all()))
-    maxent_roc_user_all()
+output$maxent_roc_all_all <- renderPlot({
+  if(!is.null(maxent_roc_all_all()))
+    maxent_roc_all_all()
 })
 
-threshold_tb_user_all <- reactive({
-  if(!is.null(maxent_model_user_all())){
-    html_dir <- maxent_model_user_all()$max_dir_files
+threshold_tb_all_all <- reactive({
+  if(!is.null(maxent_model_all_all())){
+    html_dir <- maxent_model_all_all()$max_dir_files
     html_file <- paste0(html_dir,"/","maxent.html")
     html_table <- readHTMLTable(html_file)[[1]]
     return(html_table)
@@ -306,16 +316,16 @@ threshold_tb_user_all <- reactive({
     return()
 })
 
-output$threshold_tb_user_all <- renderDataTable({
-  if(!is.null(threshold_tb_user_all()))
-    threshold_tb_user_all()
+output$threshold_tb_all_all <- renderDataTable({
+  if(!is.null(threshold_tb_all_all()))
+    threshold_tb_all_all()
 })
 
 
 
-varcontri_tb_user_all <- reactive({
-  if(!is.null(maxent_model_user_all())){
-    html_dir <- maxent_model_user_all()$max_dir_files
+varcontri_tb_all_all <- reactive({
+  if(!is.null(maxent_model_all_all())){
+    html_dir <- maxent_model_all_all()$max_dir_files
     html_file <- paste0(html_dir,"/","maxent.html")
     html_table <- readHTMLTable(html_file)[[2]]
     return(html_table)
@@ -324,14 +334,14 @@ varcontri_tb_user_all <- reactive({
     return()
 })
 
-output$varcontri_tb_user_all <- renderDataTable({
-  if(!is.null(varcontri_tb_user_all()))
-    varcontri_tb_user_all()
+output$varcontri_tb_all_all <- renderDataTable({
+  if(!is.null(varcontri_tb_all_all()))
+    varcontri_tb_all_all()
 })
 
-max_results_user_all <- reactive({
-  if(!is.null(maxent_model_user_all())){
-    folder <- maxent_model_user_all()$max_dir_files
+max_results_all_all <- reactive({
+  if(!is.null(maxent_model_all_all())){
+    folder <- maxent_model_all_all()$max_dir_files
     folder <- gsub(x = folder,"/maxent/[(0-9)]+/maxent.html",
                    replacement = "")
     tarfile <- tempfile(pattern = "max_results",fileext = ".tgz")
@@ -341,13 +351,13 @@ max_results_user_all <- reactive({
 })
 
 
-output$max_results_user_all <- downloadHandler(
+output$max_results_all_all <- downloadHandler(
   filename = function() paste0("max_results_",
                                input$selectDataMaxEnt,
                                input$selectM_MaxEnt,".tgz"),
   content = function(file){
-    if(!is.null(max_results_user_all())){
-      file.copy(max_results_user_all(),file)
+    if(!is.null(max_results_all_all())){
+      file.copy(max_results_all_all(),file)
     }
   }
 )

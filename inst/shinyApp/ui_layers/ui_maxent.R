@@ -33,12 +33,13 @@ ui_maxent  <- sidebarLayout(position = "left",
                                                                                      "Cumulative"="cumulative",
                                                                                      "Raw"="raw")),
 
-                                conditionalPanel("input.selectDataMaxEnt== 'user_data' && input.selectM_MaxEnt == 'all_raster'",
-                                                 actionButton("run_maxent_user_all","Run"),
-                                                 downloadButton("max_model_user_all","Model")),
+                                conditionalPanel("(input.selectDataMaxEnt== 'user_data' || input.selectDataMaxEnt== 'gbif_data') && input.selectM_MaxEnt == 'all_raster'",
+                                                 actionButton("run_maxent_all_all","Run"),
+                                                 downloadButton("max_model_all_all","Model")),
 
-                                conditionalPanel("input.selectDataMaxEnt== 'user_data' && input.selectM_MaxEnt == 'mLayers'",
-                                                 actionButton("run_maxent_user_mLayers","Run"))
+                                conditionalPanel("(input.selectDataMaxEnt== 'user_data' || input.selectDataMaxEnt== 'gbif_data') && input.selectM_MaxEnt == 'mLayers'",
+                                                 actionButton("run_maxent_all_mLayers","Run"),
+                                                 downloadButton("max_model_all_M","Model"))
 
                               ),
                               h4("Settings"),
@@ -75,4 +76,8 @@ ui_maxent  <- sidebarLayout(position = "left",
                                       #numericInput("max_no_data","Default no data value",value=-9999)
                                       )
                             ),
-                            mainPanel(uiOutput("maxent_html_user_all")))
+                            mainPanel(conditionalPanel("(input.selectDataMaxEnt== 'user_data' || input.selectDataMaxEnt== 'gbif_data') && input.selectM_MaxEnt == 'all_raster'",
+                                                       uiOutput("maxent_html_all_all")),
+                                      conditionalPanel("(input.selectDataMaxEnt== 'user_data' || input.selectDataMaxEnt== 'gbif_data') && input.selectM_MaxEnt == 'mLayers'",
+                                                       uiOutput("maxent_html_all_M"))
+                                      ))
