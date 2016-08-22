@@ -13,3 +13,6 @@ devtools::install_github('luismurao/nichetoolbox')
 library(nichetoolbox)
 run_nichetoolbox()
 ```
+
+## Tutorial
+[nichetoolbox](https://luismurao.github.io/ntb_tutorial.html)
