@@ -125,10 +125,24 @@ ellipsoidfit <- function(data,centroid,covar,level=0.95,
   if(exists('coordinates')){
     # Data Frame with coordinates and suitability values
     sDataFrame <- data.frame(coordinates,suitability=suits)
+<<<<<<< HEAD
     rasterDF <- raster(extention)
     res(rasterDF) <- resolution
     cels <- cellFromXY(rasterDF,sDataFrame[,1:2])
     rasterDF[cels] <- sDataFrame[,3]
+=======
+    #spg <- sDataFrame
+    # Code to convert our data frame into a raster
+    #coordinates(spg) <- ~ x + y
+    # coerce to SpatialPixelsDataFrame
+    #gridded(spg) <- TRUE
+    # coerce to raster
+    #rasterDF <- raster(spg)
+    rasterDF <- rasterFromXYZ(sDataFrame)
+    extent(rasterDF) <- extention
+    res(rasterDF) <- resolution
+    #simplest approach
+>>>>>>> ef935a65fb177aa874abb9ed5a08444fdde3da0f
     #crs(rasterDF) <- "+proj=lcc +lat_1=48 +lat_2=33 +lon_0=-100 +ellps=WGS84"
     return(list(suits=cbind(sDataFrame,data),suitRaster=rasterDF,ncentedist=distances))
   }
