@@ -33,9 +33,12 @@ ellipsoidfit <- function(data,centroid,covar,level=0.95,
                          xlab1="niche var 1",ylab1= "niche var 2",zlab1="Suitability",...){
 
   if(class(data)=="RasterStack" || class(data)=="RasterBrick"){
+    resolution <- res(data)
+    extention <- extent(data)
     toDF<- data.frame(rasterToPoints(data))
     coordinates <- toDF[,c(1,2)]
     data <- toDF[,-c(1,2)]
+
   }
   else{
     data <- data.frame(data)
@@ -126,14 +129,10 @@ ellipsoidfit <- function(data,centroid,covar,level=0.95,
   if(exists('coordinates')){
     # Data Frame with coordinates and suitability values
     sDataFrame <- data.frame(coordinates,suitability=suits)
-    spg <- sDataFrame
-    # Code to convert our data frame into a raster
-    coordinates(spg) <- ~ x + y
-    # coerce to SpatialPixelsDataFrame
-    gridded(spg) <- TRUE
-    # coerce to raster
-    rasterDF <- raster(spg)
-    #simplest approach
+    rasterDF <- raster(extention)
+    res(rasterDF) <- resolution
+    cels <- cellFromXY(rasterDF,sDataFrame[,1:2])
+    rasterDF[cels] <- sDataFrame[,3]
     crs(rasterDF) <- "+proj=lcc +lat_1=48 +lat_2=33 +lon_0=-100 +ellps=WGS84"
     return(list(suits=cbind(sDataFrame,data),suitRaster=rasterDF,ncentedist=distances))
   }
