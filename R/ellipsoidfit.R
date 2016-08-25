@@ -121,10 +121,6 @@ ellipsoidfit <- function(data,centroid,covar,level=0.95,
 
   distances <- data.frame(mahalanobis,ecucliedean)
 
-  #if(class(refraster[[1]])=="RasterLayer"){
-  #  #Convert bio1 raster to point in order to get the coordinates
-  #  coordinates <- rasterToPoints(refraster[[1]])[,c('x','y')]
-  #}
   data <- data.frame(data,ncel=1:dim(data)[1])
   if(exists('coordinates')){
     # Data Frame with coordinates and suitability values
@@ -133,7 +129,7 @@ ellipsoidfit <- function(data,centroid,covar,level=0.95,
     res(rasterDF) <- resolution
     cels <- cellFromXY(rasterDF,sDataFrame[,1:2])
     rasterDF[cels] <- sDataFrame[,3]
-    crs(rasterDF) <- "+proj=lcc +lat_1=48 +lat_2=33 +lon_0=-100 +ellps=WGS84"
+    #crs(rasterDF) <- "+proj=lcc +lat_1=48 +lat_2=33 +lon_0=-100 +ellps=WGS84"
     return(list(suits=cbind(sDataFrame,data),suitRaster=rasterDF,ncentedist=distances))
   }
 
