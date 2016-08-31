@@ -1,8 +1,39 @@
+# Check if maxent is available for dismo
+max_in_dismo <- reactive({
+  jar <- paste(system.file(package="dismo"),
+               "/java/maxent.jar", sep='')
+  if(file.exists(jar) & require(rJava)){
+    return(TRUE)
+  }
+  else
+    return()
+})
+
+compile_inst <- reactive({
+
+  comp <- system.file("shinyApp/dismo_maxent","maxent_install.Rmd",package="nichetoolbox")
+  if(file.exists(comp)){
+    save_comp <- paste0(system.file("shinyApp/dismo_maxent",package="nichetoolbox"),
+                        "/maxent_install.html")
+    render(input = comp,
+           output_format = html_document(pandoc_args = c("+RTS", "-K64m","-RTS"),
+                                         highlight="haddock",
+                                         toc = TRUE),
+           output_file = save_comp)
+    return(save_comp)
+  }
+
+})
+
+
+
+
 # ------------------------------------------------------------------------------
 # Update options depending on information aviable in NicheToolBox
 
 data_in_ntb1 <- reactiveValues()
 layers_in_ntb1 <- reactiveValues()
+
 
 observe({
   if(!is.null(data_gbif()))
@@ -245,7 +276,13 @@ output$max_model_all_all <- downloadHandler(
 
 
 output$maxent_html_all_all <- renderUI({
-  max_tex_all_all()
+  if(is.null(max_in_dismo())){
+    print(max_in_dismo())
+    includeHTML(compile_inst())
+  }
+
+  else
+    max_tex_all_all()
 })
 
 

@@ -1,0 +1,37 @@
+---
+title: "Installing MaxEnt for dismo"
+author: "Luis Osorio-Olvera"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+##### If you see this web page, it means that you dont have configured `maxent` for `dismo`. 
+
+This is a short tutorial about how to install `maxent` on `dismo`. We need to follow this steps  
+
+1) Make suere that you have `dismo` and `rJava` are installed
+```{r}
+paquetes <- c("dismo","rJava")
+test <- paquetes[!paquetes %in% installed.packages()]
+if(length(test)>0L)
+  install.packages(test)
+```
+
+2) Go to `maxent` official website [click here](https://www.cs.princeton.edu/~schapire/maxent/). Fill the following form and download `maxent`.
+
+<img src="01_maxent_home.png" align="center" style="width:704px;height:300px;">
+
+3) Once dowloaded, copy the file **maxent.jar** into the following path
+
+```{r}
+paste(system.file(package="dismo"), "/java", sep='')
+```
+
+
+<img src="02_maxent.png" align="center" style="width:704px;height:300px;">
+
+##### Now you are ready to use `maxent` within `nichetoolbox`
