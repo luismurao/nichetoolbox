@@ -88,7 +88,12 @@ output$max_model_all_M <- downloadHandler(
 
 
 output$maxent_html_all_M <- renderUI({
-  max_tex_all_M()
+  if(is.null(max_in_dismo())){
+    print(max_in_dismo())
+    includeHTML(compile_inst())
+  }
+  else
+    max_tex_all_M()
 })
 
 
