@@ -101,7 +101,7 @@ output$bio_response_m_m_train <- renderPlot({
 output$downBiclimRas <- downloadHandler(
   filename <- function() paste0("BioclimModelNTB_trainArea_",input$trainBio,"projected_area_",input$selectMBio,".asc"),
   content <- function(file){
-    if(!is.null(bioclim_model_all()) && input$selectMBio == "wWorld"){
+    if(!is.null(bioclim_model_all_all_train()) && input$selectMBio == "wWorld"){
       writeRaster(bioclim_model_all_all_train()$prediction,file)
     }
     else if(!is.null(bioclim_model_m()) && input$selectMBio == "mLayers"){
