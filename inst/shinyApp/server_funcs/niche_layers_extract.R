@@ -116,7 +116,7 @@ output$dataM <- renderDataTable({
       return(data_niche)
     }
   }
-  if((!is.null(data_user_clean()) || data_gbif()) && (!is.null(define_M_raster()) || !is.null(rasterLayers())) && is.null(data_extraction())){
+  if((!is.null(data_user_clean()) || !is.null(data_gbif())) && (!is.null(define_M_raster()) || !is.null(rasterLayers())) && is.null(data_extraction())){
     message <- "Press Go!!! button"
     data_niche <- data.frame(Press_Go = message)
     return(data_niche)
