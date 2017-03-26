@@ -40,7 +40,7 @@ and then try to install `nichetoolbox` again
 devtools::install_github('luismurao/nichetoolbox')
 ```
 
-If the error **there is no package called 'package_name'** is shown again, do the above untill the error does not appear
+If the error **there is no package called 'package_name'** is shown again, do the above (`install.package("package_name")` and then `devtools::install_github('luismurao/nichetoolbox')`) untill the error does not appear.
 
 
 ## Usage 
