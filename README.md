@@ -2,6 +2,9 @@
 
 `nichetoolbox` is an R package with a friendly Graphical User Interface (GUI) developed using shiny framework. The package aims to facilitate the process of building niche models and estimate the species distributions. 
 
+** Alternatively you can install a more stable version of `nichetoolbox`, [`ntbox`](https://github.com/luismurao/ntbox) package**.
+
+
 ## Installation
 ```r
 if (!require('devtools')) install.packages('devtools')
