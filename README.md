@@ -53,15 +53,15 @@ devtools::install_github("AnalytixWare/ShinySky")
 devtools::install_github("ENMGadgets", "narayanibarve")
 ```
 
-and then try to install `ntbox` again 
+and then try to install `nichetoolbox` again 
 ```r
-devtools::install_github('luismurao/ntbox')
+devtools::install_github('luismurao/nichetoolbox')
 ```
 
 ## Usage 
 
 ```r
-library(ntbox)
+library(nichetoolbox)
 run_ntbox()
 
 ```
