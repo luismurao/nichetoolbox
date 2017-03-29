@@ -62,7 +62,7 @@ devtools::install_github('luismurao/nichetoolbox')
 
 ```r
 library(nichetoolbox)
-run_ntbox()
+run_nichetoolbox()
 
 ```
 
