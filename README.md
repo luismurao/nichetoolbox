@@ -32,26 +32,40 @@ Error : package 'spocc' could not be loaded
 ERROR: lazy loading failed for package 'nichetoolbox'
 
 ```
-Note that the error is generated because **there is no package called 'ridigbio'** , Just try to install the `ridigbio` package
+*Note that the error is generated because **there is no package called 'ridigbio'**.* 
+
+Just run the following code:
 
 ``` r
-install.packages("ridigbio")
+ntbox_pkgs <- c("devtools", "shiny", "rgeos", "rgdal", "sp", "raster", "maptools", "dismo", 
+                 "rgl", "dygraphs", "png", "rmarkdown", "knitr", "stringr", "MASS",
+                 "animation", "mgcv", "googleVis","rasterVis", "shinyBS","shinyjs",
+                 "rglwidget", "car", "maps", "corrplot", "dplyr", "cluster", "sqldf",
+                 "fields", "devtools", "psych", "shinythemes", "grid", "RColorBrewer",
+                 "ade4", "spocc")
+
+missing_pkgs <- ntbox_pkgs[which(!ntbox_pkgs %in% installed.packages())]
+
+if(length(missing_pkgs))
+  install.packages(missing_pkgs)
+devtools::install_github("luismurao/leaflet")
+devtools::install_github("AnalytixWare/ShinySky")
+devtools::install_github("ENMGadgets", "narayanibarve")
 ```
 
-and then try to install `nichetoolbox` again 
+and then try to install `ntbox` again 
 ```r
-devtools::install_github('luismurao/nichetoolbox')
+devtools::install_github('luismurao/ntbox')
 ```
-
-If the error **there is no package called 'package_name'** is shown again, do the above (`install.package("package_name")` and then `devtools::install_github('luismurao/nichetoolbox')`) untill the error does not appear.
-
 
 ## Usage 
 
 ```r
-library(nichetoolbox)
-run_nichetoolbox()
+library(ntbox)
+run_ntbox()
+
 ```
+
 
 ## Tutorial
 [nichetoolbox](https://luismurao.github.io/GSoC/gsoc_final_eval.html)
