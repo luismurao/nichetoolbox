@@ -48,7 +48,7 @@ ntbox_pkgs <- c("devtools", "shiny", "rgeos", "rgdal", "sp", "raster", "maptools
 
 #if(length(missing_pkgs))
 #  install.packages(ntbox_pkgs)
-install.packages(missing_pkgs)
+install.packages(ntbox_pkgs)
 devtools::install_github("luismurao/leaflet")
 devtools::install_github("AnalytixWare/ShinySky")
 devtools::install_github("ENMGadgets", "narayanibarve")
