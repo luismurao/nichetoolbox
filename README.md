@@ -1,5 +1,5 @@
 
-# For more stable version of `nichetoolbox go to [ntbox repo](https://github.com/luismurao/ntbox)
+# For more stable version of `nichetoolbox` go to [ntbox repo](https://github.com/luismurao/ntbox)
 # NicheToolBox
 
 `nichetoolbox` is an R package with a friendly Graphical User Interface (GUI) developed using shiny framework. The package aims to facilitate the process of building niche models and estimate the species distributions. 
